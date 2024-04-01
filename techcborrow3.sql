@@ -21,20 +21,6 @@ CREATE SCHEMA IF NOT EXISTS `techborrow` DEFAULT CHARACTER SET utf8 ;
 USE `techborrow` ;
 
 -- -----------------------------------------------------
--- Table `techborrow`.`solicitante`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `techborrow`.`solicitante` (
-  `matricula` VARCHAR(45) NOT NULL,
-  `nombre` VARCHAR(45) NULL DEFAULT NULL,
-  `fecha` DATETIME NULL DEFAULT NULL,
-  `hora` TIME(5) NULL DEFAULT NULL,
-  `maestroRes` VARCHAR(45) NULL DEFAULT NULL,
-  PRIMARY KEY (`matricula`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-
--- -----------------------------------------------------
 -- Table `techborrow`.`material`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `techborrow`.`material` (
