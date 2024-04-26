@@ -11,6 +11,7 @@ class App extends Component {
       <Category name="Servicios" items={['Registro Prestamo','Consultar Material','Registro Devolucion']}/>
       <Category name="Material" items={['Registro Material','Consulta Material']}/>
       <Category name="Usuarios" items={['Registro Usuario','Consulta Usuario']}/>
+      <Category name="Salir" items={['f','s']}/>
     </ul>
     </div>
   );
