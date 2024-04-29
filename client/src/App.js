@@ -1,20 +1,14 @@
-import React, { Component } from 'react';
-import './App.css';
-import Category from './Category.js';
+import React from 'react';
 
-class App extends Component {
-  render() {
+const App = () => {
   return (
-    <div className="App">
-    <ul>
-      <Category name="Menu" items={['Servicios','Material','Usuarios']}/>
-      <Category name="Servicios" items={['Registro Prestamo','Consultar Material','Registro Devolucion']}/>
-      <Category name="Material" items={['Registro Material','Consulta Material']}/>
-      <Category name="Usuarios" items={['Registro Usuario','Consulta Usuario']}/>
-    </ul>
+    <div className="h-screen bg-orange-500 p-8 flex flex-col items-center justify-center">
+      <h1 className="text-3xl font-bold text-white">¡Hola Tailwind CSS!</h1>
+      <p className="mt-4 text-white">
+        Tailwind CSS es increíblemente poderoso. ¡No puedo esperar para seguir explorándolo!
+      </p>
     </div>
   );
-}
 }
 
 export default App;
