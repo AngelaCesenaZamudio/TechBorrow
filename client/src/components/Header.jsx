@@ -9,12 +9,16 @@ function Header(){
 
     const [dropdown2, setDropdown2]=useState(false);
     const [dropdown3, setDropdown3]=useState(false);
+    const [dropdown4, setDropdown4]=useState(false);
 
     const toggleDropdown2=()=>{
         setDropdown2(prevState=>!prevState);
     };
     const toggleDropdown3=()=>{
         setDropdown3(prevState=>!prevState);
+    };
+    const toggleDropdown4=()=>{
+        setDropdown4(prevState=>!prevState);
     };
 
     return (
@@ -32,8 +36,8 @@ function Header(){
                 <DropdownToggle className='border-transparent bg-white text-black'>Servicios</DropdownToggle>
             
             <DropdownMenu>
-                 <DropdownItem><a href="./RegistroPrestamo.jsx">Registro Prestamo</a></DropdownItem>
-                 <DropdownItem>Registro Devolucion</DropdownItem>
+                 <DropdownItem><a href="./Prestamo.jsx">Registro Prestamo</a></DropdownItem>
+                 <DropdownItem><a href="">Registro Devolucion</a></DropdownItem>
                  <DropdownItem>Consulta Prestamos</DropdownItem>
             </DropdownMenu>
             </Dropdown>
@@ -42,7 +46,17 @@ function Header(){
                 <DropdownToggle className='border-transparent bg-white text-black'>Material</DropdownToggle>
             
             <DropdownMenu>
-                 <a href='##'><DropdownItem>Registro Material</DropdownItem></a>
+            <Dropdown isOpen={dropdown4} toggle={toggleDropdown4}>
+                <DropdownToggle className='border-transparent bg-white text-black'>Registrar</DropdownToggle>
+                   <DropdownMenu>
+                   <DropdownItem>Material</DropdownItem>
+                   <DropdownItem>Marca</DropdownItem>
+                   <DropdownItem>Modelo</DropdownItem>
+                   <DropdownItem>Categoria</DropdownItem>
+                   <DropdownItem>Estado</DropdownItem>
+                   </DropdownMenu>
+                   </Dropdown>
+
                  <DropdownItem>Consulta Material</DropdownItem>
                  <DropdownItem>Modificacion Material</DropdownItem>
                  <DropdownItem>Eliminar Material</DropdownItem>
