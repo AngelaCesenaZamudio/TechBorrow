@@ -10,15 +10,15 @@ function RegistroPrestamo(){
     const [fecha,setfecha] = useState("");
     const [hora,sethora] = useState("");
 
-
     return(
         <div className='w-70 h-80 max-w-screen-lg mx-auto bg-white text-center'>
             <p className='font-bold text-3xl'>Registro de Prestamo</p>
             <p></p>
             <form className='align-text-top'>
             <label>Matricula/No.Empleado:
-                <input onChange={(event)=>{setmatricula(event.target.value);}} type='text' name='matricula'/></label>
-            <label>Equipos disponibles<input onChange={(event)=>{setmaterial(event.target.value);}} type='text' name='material'/></label>
+                <input onChange={(event)=>{setmatricula(event.target.value);}} type='text' name='matricula' /></label>
+            <label>Equipos disponible
+                <input onChange={(event)=>{setmaterial(event.target.value);}} type='text' name='material'/></label>
             
             
             <label>Fecha:<input onChange={(event)=>{setfecha(event.target.value);}} type='date' name='fecha'/></label>
