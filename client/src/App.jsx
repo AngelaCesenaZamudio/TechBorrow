@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Header from './components/Header.jsx'
-import Footer from './components/footer.jsx'
+import Prestamo from './components/Prestamo.jsx'
 
 function App() {
   // eslint-disable-next-line no-empty-pattern
@@ -9,7 +9,7 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <Footer />
+      <Prestamo />
     </div>
     
   )
