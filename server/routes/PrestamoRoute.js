@@ -6,23 +6,24 @@ const BD = mysql.createConnection({
     host:"localhost",
     user:"root",
     password:"root",
-    database:"bdsistemaprestamo"
+    database:"dbsistemaprestamo"
 });
 
 router.post("/RegistroPrestamo", (req,res)=>{
-    const idPrestamo = req.body.idPrestamo;
-    const matricula = req.body.matricula;
-    const material = req.body.material;
-    const categoria = req.body.categoria;
-    const fechah = req.body.fechah;
+    const id_Prestamo = req.body.id_Prestamo;
+    const matricula_claveempleado_solicitante = req.body.matricula_claveempleado_solicitante;
+    const nombre_material = req.body.nombre_material;
+    const categoria_material = req.body.categoria_material;
+    const fecha_Prestamo = req.body.fecha_Prestamo;
+    const hora_Prestamo = req.body.hora_Prestamo;
 
-    BD.query('SELECT * FROM prestamo WHERE idPrestamo = ?', [idPrestamo], (err,results)=>{
+    BD.query('SELECT * FROM prestamo WHERE id_Prestamo = ?', [id_Prestamo], (err,results)=>{
         if(err){
             console.log(err);
             return res.status(500).send("Error");
         }
 
-        BD.query('SELECT * FROM prestamo WHERE material = ?',[material], (err, results)=>{
+        BD.query('SELECT * FROM prestamo WHERE nombre_material = ?',[nombre_material], (err, results)=>{
             if(err){
                 console.log(err);
                 return res.status(500).send("Error");
@@ -32,8 +33,8 @@ router.post("/RegistroPrestamo", (req,res)=>{
                 return res.status(401).send("El material ya registrado")
             }
 
-        BD.query('INSERT INTO prestamo(idPrestamo, matricula, material, categoria, fechah) VALUES (?,?,?,?,?)',
-            [idPrestamo, matricula, material, categoria, fechah], (err, result)=>{
+        BD.query('INSERT INTO prestamo(id_Prestamo, matricula_claveempleado_solicitante, nombre_material,categoria_material, fecha_Prestamo, hora_Prestamo) VALUES (?,?,?,?,?,?)',
+            [id_Prestamo, matricula_claveempleado_solicitante, nombre_material, categoria_material, fecha_Prestamo, hora_Prestamo], (err, result)=>{
                 if(err){
                     console.log(err);
                     return res.status(500).send("Error")
