@@ -5,10 +5,17 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 
-const Prestamo = require("./routes/PrestamoRoute");
-app.use("/PrestamoRoute", Prestamo);
+const LoginRoute = require("./routes/LoginRoute");
+const PrestamoRoute = require("./routes/PrestamoRoute");
 
-app.listen(3001,()=>{
+app.use("/LoginRoute", LoginRoute);
+app.use("/PrestamoRoute", PrestamoRoute);
+
+// Redirigir la ruta raíz a la página de login
+app.get("/", (req, res) => {
+    res.redirect("/login");
+});
+
+app.listen(3001, () => {
     console.log("Corriendo en el puerto 3001");
-})
-
+});

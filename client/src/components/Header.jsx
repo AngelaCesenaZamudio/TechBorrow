@@ -23,20 +23,20 @@ function Header(){
 
     return (
         <div className='bg-white'>
-          <div className='md:px-10 py-0 px-7 md:flex justify-between items-center'>
+        <div className='md:px-10 py-0 px-7 md:flex justify-between items-center'>
             <div className='flex text-2xl cursor-pointer items-center gap-2'>
             <img src='./src/imagenes/escudo.png' width={40} height={40}></img>
                 <span className='font-bold text-lg'>Laboratorio de Sistemas Computacionales.</span>
             </div>
 
             <div className='flex space-x-16 text-xl'>
-            <button className='border-black text-black'><a href='/'>Menu</a></button>
+            <button className='border-black text-black'><a href='/Menu'>Menu</a></button>
 
             <Dropdown isOpen={dropdown2} toggle={toggleDropdown2}>
                 <DropdownToggle className='border-transparent bg-white text-black'>Servicios</DropdownToggle>
             
             <DropdownMenu>
-                 <DropdownItem><a href="./Prestamo.jsx">Registro Prestamo</a></DropdownItem>
+                 <DropdownItem><a href="./Prestamo">Registro Prestamo</a></DropdownItem>
                  <DropdownItem><a href="">Registro Devolucion</a></DropdownItem>
                  <DropdownItem>Consulta Prestamos</DropdownItem>
             </DropdownMenu>
@@ -50,10 +50,6 @@ function Header(){
                 <DropdownToggle className='border-transparent bg-white text-black'>Registrar</DropdownToggle>
                    <DropdownMenu>
                    <DropdownItem>Material</DropdownItem>
-                   <DropdownItem>Marca</DropdownItem>
-                   <DropdownItem>Modelo</DropdownItem>
-                   <DropdownItem>Categoria</DropdownItem>
-                   <DropdownItem>Estado</DropdownItem>
                    </DropdownMenu>
                    </Dropdown>
 
@@ -63,7 +59,7 @@ function Header(){
             </DropdownMenu>
             </Dropdown>
             
-            <button className='border-black text-black '>Salir</button>
+            <button className='border-black text-black '><a href='/http://localhost:5173/'></a>Salir</button>
             </div>
           </div>
           <div className='bg-yellow-400 md:px-10 py-1 px-7 md:flex justify-between items-center'></div>

@@ -7,6 +7,9 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
+import Header from './Header'; // Importa el componente Header
+
+
 
 function RegistroPrestamo(){ 
     const [id_Prestamo,setid_Prestamo] = useState(1);
@@ -124,6 +127,9 @@ function RegistroPrestamo(){
     }
 
     return(
+        <div>
+            <Header />
+
         <div className='w-50 h-96 max-w-screen-lg mx-auto mt-6 bg-white text-center'>
             <Toast ref={toast}/>
             <p className='font-bold text-2xl mb-2'>Registro de Prestamo</p>
@@ -186,7 +192,7 @@ function RegistroPrestamo(){
             <button className="bg-rose-600 text-black font-bold py-2 px-4 rounded">Cancelar</button>
             </form>
         </div>
-        
+        </div>
     );
 }
 
