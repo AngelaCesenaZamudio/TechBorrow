@@ -88,16 +88,11 @@ function RegistroPrestamo(){
                 try{
                 const response = await PrestamoService.validarMaterial(value);
                     if(response.status ===200){
-                        setnombre_material(true);
                         MensajeEx("Material habilitado");
-                        seterrorMatricula('');
                     }
                 }catch(error){
                     if(error.response&&error.response.status===400){
-                        setmatriculaValida(false);
                         MensajeAd("Material prestado");
-                    }else{
-                        seterrorMatricula("Error al validar");
                     }
                 } 
             }
@@ -212,8 +207,8 @@ function RegistroPrestamo(){
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>
             <label>Equipos disponibles:
-                <input onChange={handleMatriculaChange} type='text' name='material' disabled={isFieldDisabled}
-                value={nombre_material}/></label>
+                <input type='text' name='busqueda' disabled={isFieldDisabled}
+                /></label>
                 <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
             </div>
             </div>
@@ -227,7 +222,7 @@ function RegistroPrestamo(){
                         <th className='py-2 px-4 text-left border-b-2 border-gray-300'>Categoria</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody onChange={useEffect}>
                     {Array.isArray(materiales)&&materiales.map(material => (
                     <tr key={material.id_Material}>
                         <td className='py-1 px-4 border-b'>{material.nombre_material}</td>
@@ -241,9 +236,14 @@ function RegistroPrestamo(){
 
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
-            <p className='text-black'>Nombre del equipo:</p> 
+            <div className='text-black flex-1'> 
+            <input onChange={handleMaterialChange} 
+                    type='text' name='material' disabled={isFieldDisabled} value={nombre_material}/>
+            <div className='text-black flex-1'> 
             <input onChange={(event)=>{setcategoria_material(event.target.value);}} 
-                    type='text' name='categoria' disabled={isFieldDisabled}/>   
+                    type='text' name='categoria' disabled={isFieldDisabled} value={categoria_material}/> 
+            </div>  
+            </div>
             </div>
             </div>
             

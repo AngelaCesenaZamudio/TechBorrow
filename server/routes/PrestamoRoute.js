@@ -77,7 +77,7 @@ router.get('/validarMatricula', (req, res) => {
 
 router.get('/validarMaterial', (req, res) => {
     const material = req.query.material;
-    BD.query('SELECT * FROM material WHERE  nombre_Material=?', 
+    BD.query('SELECT * FROM material WHERE nombre_Material=?', 
         [material], (err, results) => {
             if(err){
                 console.log(err);
@@ -85,9 +85,10 @@ router.get('/validarMaterial', (req, res) => {
             }
 
             if(results.length>0){
-                res.status(200).send('Matricula valida');
+                console.log(material);
+                res.status(200).send('Material habilitado');
             }else{
-                res.status(400).send('Matricula no valida');
+                res.status(400).send('Material no valido');
             }
     });
 });
