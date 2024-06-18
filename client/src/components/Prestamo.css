@@ -13,3 +13,8 @@
     color: rgb(219, 34, 34);
 }
 
+.toast-current{
+    background-color: beige;
+    color: chartreuse;
+}
+
