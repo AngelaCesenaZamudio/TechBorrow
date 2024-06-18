@@ -70,7 +70,7 @@ function Login() {
                             onChange={(e) => setPassword(e.target.value)} // Actualiza el estado de password al escribir
                             className='w-full px-3 py-2 border rounded-md'
                             required // Campo requerido
-                             autoComplete='current-password'
+                            autoComplete='current-password'
 
                         />
                     </div>

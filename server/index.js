@@ -17,5 +17,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(3001, () => {
-    console.log("Corriendo en el puerto 3001");
+    console.log("Corriendo en el puerto 5173");
 });
