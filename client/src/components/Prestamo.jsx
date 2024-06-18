@@ -20,11 +20,16 @@ function RegistroPrestamo(){
     const [hora_Prestamo,sethora_Prestamo] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
+    const [materiales, setMateriales] = useState([]);
+    const [matriculaValida, setmatriculaValida] = useState(false);
+    const [errorMatricula, seterrorMatricula] = useState('')
+    const [isFieldDisabled, setisFieldDisabled] = useState(true);
+
     const toast = useRef(null);
 
     //Mensaje de confirmacion de exito
     const MensajeEx = (mensaje) =>{
-        toast.current.show({severity: 'sucess', summary: 'Exito', detail: mensaje, life:3000});
+        toast.current.show({severity: 'success', summary: 'Exito', detail: mensaje, life:3000});
     }
 
     //Mensaje de advertencia sobre algun campo
@@ -35,6 +40,71 @@ function RegistroPrestamo(){
     //Mensaje de error para cualquier cosa
     const MensajeEr = (mensaje)=>{
         toast.current.show({severity: 'error', summary: 'Error', detail: mensaje, life: 3000});
+    }
+
+    //Funcion para que no acepte simbolos
+        const handleMatriculaChange = async (event) =>{
+        const value = event.target.value;
+        const regex = /^[0-9\b]+$/;
+
+        if(value === "" || regex.test(value)){
+            setmatricula_claveempleado_solicitante(value);
+    
+            //Para validar la matricula
+            if(value !==""){
+                try{
+                const response = await PrestamoService.validarMatricula(value);
+                    if(response.status ===200){
+                        setmatriculaValida(true);
+                        MensajeEx("Matricula vigente");
+                        seterrorMatricula('');
+                        setisFieldDisabled(false);
+                    }
+                }catch(error){
+                    if(error.response&&error.response.status===400){
+                        setmatriculaValida(false);
+                        MensajeEr("Matricula no vigente");
+                        setisFieldDisabled(true);
+                    }else{
+                        seterrorMatricula("Error al validar");
+                        setisFieldDisabled(true);
+                    }
+                } 
+            }else{
+                setisFieldDisabled(true);
+            }
+        }else{
+            MensajeAd("Solo se permite numeros");
+        }
+    }
+
+    //Funcion para validar el material
+    const handleMaterialChange = async (event) =>{
+        const value = event.target.value;
+        const regex = /^[0-9\b]+$/;
+
+        if(value === "" || regex.test(value)){
+            setnombre_material(value);
+    
+            //Para validar el material libre
+            if(value !==""){
+                try{
+                const response = await PrestamoService.validarMaterial(value);
+                    if(response.status ===200){
+                        setnombre_material(true);
+                        MensajeEx("Material habilitado");
+                        seterrorMatricula('');
+                    }
+                }catch(error){
+                    if(error.response&&error.response.status===400){
+                        setmatriculaValida(false);
+                        MensajeAd("Material prestado");
+                    }else{
+                        seterrorMatricula("Error al validar");
+                    }
+                } 
+            }
+        }
     }
 
     //Funcion para mandar los datos al services
@@ -56,6 +126,7 @@ function RegistroPrestamo(){
             MensajeEx("Registro guardado con exito!");
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
+            setid_Prestamo(prevId => prevId +1);
             }
         }).catch(error=>{
             if(error.response.status === 400){
@@ -114,17 +185,18 @@ function RegistroPrestamo(){
         sethora_Prestamo(hora_Prestamo);
     }, []);
 
-    //Funcion para que no acepte simbolos
-    const handleMatriculaChange = (event) =>{
-        const value = event.target.value;
-        const regex = /^[0-9\b]+$/;
-
-        if(value === "" || regex.test(value)){
-            setmatricula_claveempleado_solicitante(value);
-        }else{
-            MensajeAd("Solo se permite numeros");
-        }
-    }
+    //Funcion para obtener material y mostrar
+    useEffect(() =>{
+        const fetchMateriales = async () => {
+            try{
+                const response = await PrestamoService.obtenerMaterial();
+                setMateriales(response.data);
+            }catch(error){
+                MensajeEr("Error al obtener los materiales");
+            }
+        };
+        fetchMateriales();
+    }, []);
 
     return(
         <div>
@@ -134,21 +206,20 @@ function RegistroPrestamo(){
             <Toast ref={toast}/>
             <p className='font-bold text-2xl mb-2'>Registro de Prestamo</p>
             
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={agregar}>
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>   
             <label>Matricula/No.Empleado:
-                <input onChange={(event)=>{setmatricula_claveempleado_solicitante(event.target.value);}} 
-                    type='text' name='matricula' /></label>
-                <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
+                <input onChange={handleMatriculaChange} 
+                    type='text' name='matricula' value={matricula_claveempleado_solicitante}/></label>
             </div>
             </div> 
 
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>
             <label>Equipos disponibles:
-                <input onChange={(event)=>{setnombre_material(event.target.value);}} 
-                    type='text' name='material'/></label>
+                <input onChange={handleMatriculaChange} type='text' name='material' disabled={isFieldDisabled}
+                value={nombre_material}/></label>
                 <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
             </div>
             </div>
@@ -163,10 +234,12 @@ function RegistroPrestamo(){
                 </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td className='py-1 px-4 border-b'>Material 1</td>
-                        <td>LAPTOP</td>
+                    {Array.isArray(materiales)&&materiales.map(material => (
+                    <tr key={material.id_Material}>
+                        <td className='py-1 px-4 border-b'>{material.nombre_material}</td>
+                        <td>{material.categoria_material}</td>
                     </tr>
+                    ))}
                 </tbody>
             </table>
             </div>
@@ -176,7 +249,7 @@ function RegistroPrestamo(){
             <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
             <p className='text-black'>Nombre del equipo:</p> 
             <input onChange={(event)=>{setcategoria_material(event.target.value);}} 
-                    type='text' name='categoria'/>   
+                    type='text' name='categoria' disabled={isFieldDisabled}/>   
             </div>
             </div>
             
