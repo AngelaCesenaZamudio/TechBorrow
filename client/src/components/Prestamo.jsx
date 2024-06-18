@@ -9,7 +9,7 @@ import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
 
 function RegistroPrestamo(){ 
-    const [id_Prestamo,setid_Prestamo] = useState(0);
+    const [id_Prestamo,setid_Prestamo] = useState(1);
     const [matricula_claveempleado_solicitante,setmatricula_claveempleado_solicitante] = useState("");
     const [nombre_material,setnombre_material] = useState("");
     const [categoria_material,setcategoria_material] = useState("");
@@ -65,6 +65,7 @@ function RegistroPrestamo(){
         });
     }
 
+    //Funcion que genera la fecha
     useEffect(() => {
         const obtenerFecha = () =>{
             const now  = new Date();
@@ -93,6 +94,7 @@ function RegistroPrestamo(){
         console.log(fecha_Prestamo)
     }
 
+    //Funcion que genera la hora
     useEffect(() => {
         const obtenerHora = () =>{
             const now = new Date();
@@ -109,6 +111,18 @@ function RegistroPrestamo(){
         sethora_Prestamo(hora_Prestamo);
     }, []);
 
+    //Funcion para que no acepte simbolos
+    const handleMatriculaChange = (event) =>{
+        const value = event.target.value;
+        const regex = /^[0-9\b]+$/;
+
+        if(value === "" || regex.test(value)){
+            setmatricula_claveempleado_solicitante(value);
+        }else{
+            MensajeAd("Solo se permite numeros");
+        }
+    }
+
     return(
         <div className='w-50 h-96 max-w-screen-lg mx-auto mt-6 bg-white text-center'>
             <Toast ref={toast}/>
@@ -118,7 +132,8 @@ function RegistroPrestamo(){
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>   
             <label>Matricula/No.Empleado:
-                <input onChange={(event)=>{setmatricula_claveempleado_solicitante(event.target.value);}} type='text' name='matricula' /></label>
+                <input onChange={(event)=>{setmatricula_claveempleado_solicitante(event.target.value);}} 
+                    type='text' name='matricula' /></label>
                 <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
             </div>
             </div> 
@@ -126,7 +141,8 @@ function RegistroPrestamo(){
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>
             <label>Equipos disponibles:
-                <input onChange={(event)=>{setnombre_material(event.target.value);}} type='text' name='material'/></label>
+                <input onChange={(event)=>{setnombre_material(event.target.value);}} 
+                    type='text' name='material'/></label>
                 <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
             </div>
             </div>
@@ -153,7 +169,8 @@ function RegistroPrestamo(){
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
             <p className='text-black'>Nombre del equipo:</p> 
-                
+            <input onChange={(event)=>{setcategoria_material(event.target.value);}} 
+                    type='text' name='categoria'/>   
             </div>
             </div>
             
