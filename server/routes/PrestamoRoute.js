@@ -75,4 +75,38 @@ router.get('/validarMatricula', (req, res) => {
     });
 });
 
+router.get('/validarMaterial', (req, res) => {
+    const material = req.query.material;
+    BD.query('SELECT * FROM material WHERE  nombre_Material=?', 
+        [material], (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).send('Error');
+            }
+
+            if(results.length>0){
+                res.status(200).send('Matricula valida');
+            }else{
+                res.status(400).send('Matricula no valida');
+            }
+    });
+});
+
+router.get('/estadoMaterial', (req, res) => {
+    const material = req.query.material;
+    BD.query('SELECT * FROM material WHERE estado =?', 
+        [matricula], (err, results) => {
+            if(err){
+                console.log(err);
+                return res.status(500).send('Error');
+            }
+
+            if(results.length>0){
+                const estado = results[0].estado;
+                res.status(200).json({estado : estado});
+            }else{
+                res.status(404).send('Material no valid');
+            }
+    });
+});
 module.exports = router;

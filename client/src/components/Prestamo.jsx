@@ -26,7 +26,7 @@ function RegistroPrestamo(){
 
     //Mensaje de confirmacion de exito
     const MensajeEx = (mensaje) =>{
-        toast.current.show({severity: 'sucess', summary: 'Exito', detail: mensaje, life:3000});
+        toast.current.show({severity: 'success', summary: 'Exito', detail: mensaje, life:3000});
     }
 
     //Mensaje de advertencia sobre algun campo
@@ -60,7 +60,7 @@ function RegistroPrestamo(){
                 }catch(error){
                     if(error.response&&error.response.status===400){
                         setmatriculaValida(false);
-                        seterrorMatricula("Matricula no valida");
+                        MensajeEr("Matricula no vigente");
                         setisFieldDisabled(true);
                     }else{
                         seterrorMatricula("Error al validar");
@@ -72,6 +72,35 @@ function RegistroPrestamo(){
             }
         }else{
             MensajeAd("Solo se permite numeros");
+        }
+    }
+
+    //Funcion para validar el material
+    const handleMaterialChange = async (event) =>{
+        const value = event.target.value;
+        const regex = /^[0-9\b]+$/;
+
+        if(value === "" || regex.test(value)){
+            setnombre_material(value);
+    
+            //Para validar el material libre
+            if(value !==""){
+                try{
+                const response = await PrestamoService.validarMaterial(value);
+                    if(response.status ===200){
+                        setnombre_material(true);
+                        MensajeEx("Material habilitado");
+                        seterrorMatricula('');
+                    }
+                }catch(error){
+                    if(error.response&&error.response.status===400){
+                        setmatriculaValida(false);
+                        MensajeAd("Material prestado");
+                    }else{
+                        seterrorMatricula("Error al validar");
+                    }
+                } 
+            }
         }
     }
 
@@ -183,7 +212,8 @@ function RegistroPrestamo(){
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>
             <label>Equipos disponibles:
-                <input onChange={handleMatriculaChange} type='text' name='material' disabled={isFieldDisabled}/></label>
+                <input onChange={handleMatriculaChange} type='text' name='material' disabled={isFieldDisabled}
+                value={nombre_material}/></label>
                 <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
             </div>
             </div>

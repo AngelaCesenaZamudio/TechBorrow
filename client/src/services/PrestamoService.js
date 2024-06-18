@@ -13,6 +13,20 @@ const PrestamoService = {
                 matricula : matricula
             }
     });
+    },
+    validarMaterial: (material) =>{
+        return Axios.get('http://localhost:3001/PrestamoRoute/validarMaterial',{
+            params : {
+                material : material
+            }
+    });
+    },
+    estadoMaterial: (material) => {
+        return Axios.get('http://localhost:3001/PrestamoRoute/EstadoMaterial',{
+            params : {
+                material : material
+            }
+        });
     }
 }
 
