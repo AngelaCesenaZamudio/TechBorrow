@@ -1,0 +1,15 @@
+.toast-success {
+    background-color: beige;
+    color: rgb(47, 255, 95);
+}
+
+.toast-warn {
+    background-color: beige;
+    color:rgb(244, 244, 63);
+}
+
+.toast-error{
+    background-color: beige;
+    color: rgb(219, 34, 34);
+}
+

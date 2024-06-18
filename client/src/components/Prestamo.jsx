@@ -1,8 +1,11 @@
 /* eslint-disable react/no-unknown-property */
 /* eslint-disable no-unused-vars */
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
-import { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Toast } from 'primereact/toast';
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
 
 function RegistroPrestamo(){ 
@@ -12,11 +15,13 @@ function RegistroPrestamo(){
     const [categoria_material,setcategoria_material] = useState("");
     const [fecha_Prestamo,setfecha_Prestamo] = useState("");
     const [hora_Prestamo,sethora_Prestamo] = useState("");
+    const [showSuccessMessage, setshowSuccessMessage] = useState(false);
+    const [showErrorMessage, setshowErrorMessage] = useState(false);
     const toast = useRef(null);
 
     //Mensaje de confirmacion de exito
-    const MensajeEx =(mensaje)=>{
-        toast.current.show({severity:'sucess', summary:'Exito', detail:mensaje, life:3000});
+    const MensajeEx = (mensaje) =>{
+        toast.current.show({severity: 'sucess', summary: 'Exito', detail: mensaje, life:3000});
     }
 
     //Mensaje de advertencia sobre algun campo
@@ -26,7 +31,7 @@ function RegistroPrestamo(){
 
     //Mensaje de error para cualquier cosa
     const MensajeEr = (mensaje)=>{
-        toast.severity.show({severity:'error', summary:'Error', detail:mensaje, life:3000});
+        toast.current.show({severity: 'error', summary: 'Error', detail: mensaje, life: 3000});
     }
 
     //Funcion para mandar los datos al services
@@ -46,6 +51,8 @@ function RegistroPrestamo(){
         }).then(response=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
+            setshowSuccessMessage(true);
+            setshowErrorMessage(false);
             }
         }).catch(error=>{
             if(error.response.status === 400){
@@ -53,28 +60,116 @@ function RegistroPrestamo(){
             }else if(error.response.status === 401){
                 MensajeEr("Error del servidor");
             }
+            setshowErrorMessage(true);
+            setshowSuccessMessage(false);
         });
     }
 
+    useEffect(() => {
+        const obtenerFecha = () =>{
+            const now  = new Date();
+            const year = now.getFullYear();
+            let month = now.getMonth()+1;
+            let day = now.getDate();
+
+            if(month < 10){
+                month = `0${month}`;
+            }
+
+            if(day < 10){
+                day = `0${day}`;
+            }
+
+            return `${year}-${month}-${day}`;
+        };
+
+        const fecha_Prestamo = obtenerFecha();
+        setfecha_Prestamo(fecha_Prestamo);
+    }, []);
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        console.log(fecha_Prestamo)
+    }
+
+    useEffect(() => {
+        const obtenerHora = () =>{
+            const now = new Date();
+            let hour = now.getHours();
+            let minute = now.getMinutes();
+
+            hour = hour < 10 ? `0${hour}` : hour;
+            minute = minute < 10 ? `0${minute}` : minute;
+
+            return `${hour}:${minute}`;
+        };
+
+        const hora_Prestamo = obtenerHora();
+        sethora_Prestamo(hora_Prestamo);
+    }, []);
+
     return(
-        <div className='w-70 h-80 max-w-screen-lg mx-auto bg-white text-center'>
-            <p className='font-bold text-3xl'>Registro de Prestamo</p>
-            <p></p>
-            <form className='align-text-top'>
+        <div className='w-50 h-96 max-w-screen-lg mx-auto mt-6 bg-white text-center'>
+            <Toast ref={toast}/>
+            <p className='font-bold text-2xl mb-2'>Registro de Prestamo</p>
+            
+            <form onSubmit={handleSubmit}>
+            <div className='w-full h-full flex items-center justify-center mb-2'>   
+            <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>   
             <label>Matricula/No.Empleado:
                 <input onChange={(event)=>{setmatricula_claveempleado_solicitante(event.target.value);}} type='text' name='matricula' /></label>
-            <label>Material:
-                <input onChange={(event)=>{setnombre_material(event.target.value);}} type='text' name='material'/></label>
-            <label>Categoria:
-                <input onChange={(event)=>{setcategoria_material(event.target.value);}} type='text' name='categoria'/></label>    
-            <label>Fecha:
-                <input onChange={(event)=>{setfecha_Prestamo(event.target.value);}} type='date' name='fecha'/></label>
-            <label>hora:
-                <input onChange={(event)=>{sethora_Prestamo(event.target.value);}} type='time' name='hora'/></label>
+                <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
+            </div>
+            </div> 
 
-            <button className="border-black text-black" label="Guardar" onClick={(event) => agregar(event)}>Guardar</button>
+            <div className='w-full h-full flex items-center justify-center mb-2'>   
+            <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>
+            <label>Equipos disponibles:
+                <input onChange={(event)=>{setnombre_material(event.target.value);}} type='text' name='material'/></label>
+                <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
+            </div>
+            </div>
+
+            <div className='w-full h-full flex items-center justify-center mb-2'>   
+            <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
+            <table id='tablamaterial' className='w-full'>
+                <thead>
+                    <tr>
+                        <th className='py-2 px-4 text-left border-b-2 border-gray-300'>Nombre material</th>
+                        <th className='py-2 px-4 text-left border-b-2 border-gray-300'>Categoria</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className='py-1 px-4 border-b'>Material 1</td>
+                        <td>LAPTOP</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+            </div>
+
+            <div className='w-full h-full flex items-center justify-center mb-2'>   
+            <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
+            <p className='text-black'>Nombre del equipo:</p> 
+                
+            </div>
+            </div>
+            
+            <div className='w-full h-full flex items-center justify-center mb-2'>   
+            <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
+            <input id='fecha' type='date' value={fecha_Prestamo} readOnly className='w-1/2 p-1 border-gray-300 rounded-md text-center'/>
+            <input id='hora' type='time' value={hora_Prestamo} readOnly className='w-1/2 p-1 border-gray-300 rounded-md text-center'/>
+            </div>
+            </div>
+
+            <a href='../App.jsx'><button className="bg-yellow-400 text-black font-bold py-2 px-4 rounded mr-10">Volver</button></a>
+            <button className="bg-lime-500 text-black font-bold py-2 px-4 rounded mr-10" onClick={(event) => agregar(event)}>Guardar</button>
+            <button className="bg-rose-600 text-black font-bold py-2 px-4 rounded">Cancelar</button>
             </form>
         </div>
+        
     );
 }
 
