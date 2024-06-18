@@ -7,9 +7,6 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
-import Header from './Header'; // Importa el componente Header
-
-
 
 function RegistroPrestamo(){ 
     const [id_Prestamo,setid_Prestamo] = useState(1);
@@ -81,9 +78,6 @@ function RegistroPrestamo(){
     //Funcion para validar el material
     const handleMaterialChange = async (event) =>{
         const value = event.target.value;
-        const regex = /^[0-9\b]+$/;
-
-        if(value === "" || regex.test(value)){
             setnombre_material(value);
     
             //Para validar el material libre
@@ -91,14 +85,21 @@ function RegistroPrestamo(){
                 try{
                 const response = await PrestamoService.validarMaterial(value);
                     if(response.status ===200){
+                        setmatriculaValida(true);
                         MensajeEx("Material habilitado");
+                        seterrorMatricula('');
+                        setisFieldDisabled(false);
                     }
                 }catch(error){
                     if(error.response&&error.response.status===400){
-                        MensajeAd("Material prestado");
+                        setmatriculaValida(false);
+                        MensajeEr("Material no valido");
+                        setisFieldDisabled(true);
+                    }else{
+                        seterrorMatricula("Error al validar");
+                        setisFieldDisabled(true);
                     }
                 } 
-            }
         }
     }
 
@@ -194,9 +195,6 @@ function RegistroPrestamo(){
     }, []);
 
     return(
-        <div>
-            <Header />
-
         <div className='w-50 h-96 max-w-screen-lg mx-auto mt-6 bg-white text-center'>
             <Toast ref={toast}/>
             <p className='font-bold text-2xl mb-2'>Registro de Prestamo</p>
@@ -244,7 +242,7 @@ function RegistroPrestamo(){
             <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
             <div className='text-black flex-1'> 
             <input onChange={handleMaterialChange} 
-                    type='text' name='material' disabled={isFieldDisabled} value={nombre_material}/>
+                    type='text' name='material' disabled={isFieldDisabled} value={nombre_material} className='flex-1'/>
             <div className='text-black flex-1'> 
             <input onChange={(event)=>{setcategoria_material(event.target.value);}} 
                     type='text' name='categoria' disabled={isFieldDisabled} value={categoria_material}/> 
@@ -265,7 +263,7 @@ function RegistroPrestamo(){
             <button className="bg-rose-600 text-black font-bold py-2 px-4 rounded">Cancelar</button>
             </form>
         </div>
-        </div>
+        
     );
 }
 

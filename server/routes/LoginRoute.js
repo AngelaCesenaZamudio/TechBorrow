@@ -17,7 +17,6 @@ BD.connect((err) => {
         console.error('Error conectando a la base de datos:', err);
         process.exit(1); // Salir del proceso con error si la conexión falla
     }
-    console.log('Conexión exitosa a la base de datos.');
 });
 
 /**
