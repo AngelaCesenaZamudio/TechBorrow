@@ -26,7 +26,7 @@ BD.connect((err) => {
  * - Verifica si el usuario existe en la base de datos.
  * - Compara la contraseña proporcionada con la almacenada en la base de datos utilizando bcrypt.
  */
-router.post("/login", (req, res) => {
+router.get("/login", (req, res) => {
     const { username, password } = req.body;
 
     // Validar que username y password estén presentes en la solicitud

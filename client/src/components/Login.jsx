@@ -22,7 +22,7 @@ function Login() {
         LoginService.login({ username, password })
             .then(() => {
                 alert('Inicio de sesión exitoso!'); // Muestra mensaje de éxito
-                navigate('/menu'); // Redirige a la página del menú después del inicio de sesión exitoso
+                navigate('/Menu.jsx'); // Redirige a la página del menú después del inicio de sesión exitoso
             })
             .catch(error => {
                 alert('Error al iniciar sesión: ' + (error.response?.data || error.message)); // Muestra mensaje de error si ocurre un problema
