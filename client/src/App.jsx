@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/Login';
 import Header from './components/Header.jsx'
-import Menu from './components/Menu';
+import Menu from './components/Menu.jsx';
 import Prestamo from './components/Prestamo';
 import Footer from './components/footer.jsx'
 

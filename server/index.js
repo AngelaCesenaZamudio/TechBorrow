@@ -16,6 +16,10 @@ app.get("/", (req, res) => {
     res.redirect("/login");
 });
 
-app.listen(3001, () => {
-    console.log("Corriendo en el puerto 3001");
+
+const PORT = 3001; // o el puerto que prefieras
+app.listen(PORT, () => {
+    
 });
+
+
