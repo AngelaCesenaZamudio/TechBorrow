@@ -8,13 +8,17 @@ import Footer from './components/footer.jsx'
 function App() {
     return (
         <Router>
+            <div className='flex flex-col min-h-screen'>
+                <Header />
+                <main className='flex-grow'> 
             <Routes>
                 <Route path="/" element={<Login />} />
-                <Route path='/Header' element={<Header />} />
                 <Route path="/Menu" element={<Menu />} />
                 <Route path="/prestamo" element={<Prestamo />} />
-                <Route path='/Footer' element={<Footer />} />
             </Routes>
+            </main>
+            <Footer />
+            </div>
         </Router>
     );
 }

@@ -5,9 +5,7 @@ function Menu() {
   return (
     <div>
       {/* Renderiza el componente Header */}
-      <Header />
-
-      <Footer />
+      
     </div>
   );
 }
