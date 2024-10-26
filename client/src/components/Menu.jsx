@@ -4,8 +4,7 @@ import Footer from './footer.jsx';
 function Menu() {
   return (
     <div>
-      {/* Renderiza el componente Header */}
-      
+    
     </div>
   );
 }
