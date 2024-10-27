@@ -8,7 +8,7 @@ import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
 
-function RegistroPrestamo(){ 
+function PantallaPrestamoMaterial(){ 
     const [id_Prestamo,setid_Prestamo] = useState(1);
     const [matricula_claveempleado_solicitante,setmatricula_claveempleado_solicitante] = useState("");
     const [nombre_material,setnombre_material] = useState("");
@@ -195,61 +195,51 @@ function RegistroPrestamo(){
     }, []);
 
     return(
-        <div className='w-50 h-96 max-w-screen-lg mx-auto mt-6 bg-white text-center'>
-            <Toast ref={toast}/>
-            <p className='font-bold text-2xl mb-2'>Registro de Prestamo</p>
-            
-            <form onSubmit={agregar}>
-            <div className='w-full h-full flex items-center justify-center mb-2'>   
-            <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>   
-            <label>Matricula/No.Empleado:
-                <input onChange={handleMatriculaChange} 
-                    type='text' name='matricula' value={matricula_claveempleado_solicitante}/></label>
-            </div>
-            </div> 
+        <div className='bg-white text-xl font-bold max-w-7xl mx-auto p-4'>
+        <div className='flex items-center justify-between mb-4'>
+        <h1 className='flex-none mb-4'>Prestamos</h1>
 
-            <div className='w-full h-full flex items-center justify-center mb-2'>   
-            <div className='bg-stone-200 box-border h-10 w-45 p-2 border-1 flex items-center space-x-2'>
-            <label>Equipos disponibles:
-                <input type='text' name='busqueda' disabled={isFieldDisabled}
-                /></label>
-                <button className="bg-lime-500 hover:bg-lime-700 text-black font-bold py-1 px-2 rounded">Buscar</button>
-            </div>
-            </div>
+        <div className='flex items-center flex-grow justify-center mb-2'>
+        <div className='relative flex-grow max-w-xl'> 
+            <input type='text' placeholder='Ingrese nombre material...' className='border border-gray-300 rounded-md p-2 w-full text-sm h-10 pr-10'/>
+            <button className='absolute right-2 top-0 flex items-center h-full'>
+                <img src='./src/imagenes/lupa.png' alt='Buscar' className='w-4 h-4 text-gray-500' />
+            </button>
+        </div>
+        </div>
+        <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4'>Registrar Prestamo</button>
+        </div>
+        <hr className='my-4 border-gray-900'/>
 
-            <div className='w-full h-full flex items-center justify-center mb-2'>   
-            <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
-            <table id='tablamaterial' className='w-full'>
-                <thead>
-                    <tr>
-                        <th className='py-2 px-4 text-left border-b-2 border-gray-300'>Nombre material</th>
-                        <th className='py-2 px-4 text-left border-b-2 border-gray-300'>Categoria</th>
+        <table className='min-w-full border-collapse'>
+            <thead>
+                <tr>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Fecha de registro</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matricula/NumeroEmpleado</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</th> 
                 </tr>
-                </thead>
-                <tbody onChange={useEffect}>
-                    {Array.isArray(materiales)&&materiales.map(material => (
-                    <tr key={material.id_Material}>
-                        <td className='py-1 px-4 border-b'>{material.nombre_material}</td>
-                        <td>{material.categoria_material}</td>
-                    </tr>
-                    ))}
-                </tbody>
-            </table>
-            </div>
-            </div>
+            </thead>
+            <tbody>
+                
 
-            <div className='w-full h-full flex items-center justify-center mb-2'>   
-            <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
-            <div className='text-black flex-1'> 
-            <input onChange={handleMaterialChange} 
-                    type='text' name='material' disabled={isFieldDisabled} value={nombre_material} className='flex-1'/>
-            <div className='text-black flex-1'> 
-            <input onChange={(event)=>{setcategoria_material(event.target.value);}} 
-                    type='text' name='categoria' disabled={isFieldDisabled} value={categoria_material}/> 
-            </div>  
-            </div>
-            </div>
-            </div>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>fecha</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>matricula</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>nombre</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>categoria</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
+                    <button className='focus:outline-none'>
+                        <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
+                    </button>
+                    <button className='focus:outline-none ml-6'>
+                        <img src='./src/imagenes/eliminar.png' alt='Modificar' className='h-5 w-5 inline<'/>
+                    </button>
+                </td>
+            </tbody>
+        </table>
+
+            {/*
+            
             
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
@@ -261,10 +251,10 @@ function RegistroPrestamo(){
             <a href='../App.jsx'><button className="bg-yellow-400 text-black font-bold py-2 px-4 rounded mr-10">Volver</button></a>
             <button className="bg-lime-500 text-black font-bold py-2 px-4 rounded mr-10" onClick={(event) => agregar(event)}>Guardar</button>
             <button className="bg-rose-600 text-black font-bold py-2 px-4 rounded">Cancelar</button>
-            </form>
+            */}
         </div>
         
     );
 }
 
-export default RegistroPrestamo;
+export default PantallaPrestamoMaterial;
