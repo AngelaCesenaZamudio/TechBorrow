@@ -12,11 +12,7 @@ function MenuServicios() {
      <div className='flex w-full'>
      <div className='bg-green-700 w-2 h-full rounded-l-md'></div>
         <button className="border-4 border-slate-7000/50 text-black p-2 rounded-lg flex-grow flex items-center transition duration-200"
-<<<<<<< Updated upstream
-        onClick={() => navigate('/Prestamo')}>
-=======
         onClick={() => navigate('/PantallaPrestamoMaterial')}>
->>>>>>> Stashed changes
           <div className='bg-zinc-100'>
           <img src='./src/imagenes/servicios.png' className="w-13 h-13 mr-3 transform-rotate-15" />
           </div>
@@ -81,7 +77,3 @@ function MenuServicios() {
 }
 
 export default MenuServicios;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
