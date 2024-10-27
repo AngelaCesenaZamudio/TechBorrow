@@ -12,7 +12,7 @@ function Menu() {
      <div className='flex w-full'>
      <div className='bg-green-700 w-2 h-full rounded-l-md'></div>
         <button className="border-4 border-slate-7000/50 text-black p-2.5 rounded-lg flex-grow flex items-center transition duration-200"
-         onClick={() => navigate('')}>
+         onClick={() => navigate('./PantallaMaterialLaboratorio')}>
           <div className='bg-zinc-100'>
           <img src='./src/imagenes/material.png' className="w-15 h-15 mr-4 transform-rotate-15" />
           </div>
