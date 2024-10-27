@@ -1,6 +1,7 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -16,6 +17,10 @@ app.get("/", (req, res) => {
     res.redirect("/login");
 });
 
-app.listen(3001, () => {
-    console.log("Corriendo en el puerto 3001");
+
+const PORT = 3001; 
+app.listen(PORT, () => {
+    
 });
+
+
