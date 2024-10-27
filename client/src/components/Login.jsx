@@ -21,13 +21,16 @@ function Login() {
 
         // Llama al método de servicio para iniciar sesión con los datos ingresados
         LoginService.autentificacion_usuario({ numeroempleado, contraseña })
-            .then(() => {
+            .then((response) => {
+                console.log('Respuesta del servidor:', response);
                 alert('Inicio de sesión exitoso!'); // Muestra mensaje de éxito
                 navigate('/Menu'); // Redirige a la página del menú después del inicio de sesión exitoso
             })
             .catch(error => {
-                alert('Error al iniciar sesión: ' + (error.response?.data || error.message)); // Muestra mensaje de error si ocurre un problema
-            });
+                    console.error('Error en el inicio de sesión:', error); // Agrega este log
+                    alert('Error al iniciar sesión: ' + (error.response?.data || error.message)); 
+                });
+               
     };
 
     return (

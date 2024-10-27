@@ -1,6 +1,7 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -17,7 +18,7 @@ app.get("/", (req, res) => {
 });
 
 
-const PORT = 3001; // o el puerto que prefieras
+const PORT = 3001; 
 app.listen(PORT, () => {
     
 });

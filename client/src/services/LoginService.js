@@ -4,7 +4,7 @@ const LoginService = {
     // Función para enviar las credenciales de inicio de sesión al servidor
     autentificacion_usuario: async ({ numeroempleado, contraseña }) => {
         try {
-            const response = await axios.get('http://localhost:5173/LoginRoute/autentificacion_usuario', {
+            const response = await axios.post('http://localhost:3000/LoginRoute/autentificacion_usuario', {
                 numeroempleado,
                 contraseña,
             });
