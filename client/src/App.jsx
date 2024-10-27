@@ -2,8 +2,9 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import Login from './components/Login';
 import Header from './components/Header.jsx'
 import Menu from './components/Menu.jsx';
-import Prestamo from './components/Prestamo';
+import Prestamo from './components/Prestamo.jsx';
 import Footer from './components/footer.jsx'
+import MenuServicios from './components/MenuServicios.jsx';
 
 function App() {
     return (
@@ -15,7 +16,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<Login />} />
                 <Route path="/Menu" element={<Menu />} />
-                <Route path="/prestamo" element={<Prestamo />} />
+                <Route path='/MenuServicios' element={<MenuServicios />} />
+                <Route path="/Prestamo" element={<Prestamo />} />
             </Routes>
             </main>
             <Footer />

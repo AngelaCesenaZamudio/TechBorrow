@@ -43,6 +43,7 @@ function Header(){
                 <DropdownToggle className='border-transparent bg-white text-black'>Servicios</DropdownToggle>
             
             <DropdownMenu>
+            <DropdownItem><a href="./MenuServicios">Menu de servicios</a></DropdownItem>
                  <DropdownItem><a href="./Prestamo">Prestamo</a></DropdownItem>
                  <DropdownItem><a href="">Devolucion</a></DropdownItem>
                  <DropdownItem>Reporte</DropdownItem>
@@ -60,7 +61,7 @@ function Header(){
                             {dropdown4 && (
                                 <div className='border-transparent bg-white shadow-lg mt-2 ml-3 p-2'>
                                     <DropdownMenu>
-                                        <DropdownItem>Material</DropdownItem>
+                                        <DropdownItem><a href="./PantallaRegistroMaterial">Material</a></DropdownItem>
                                         <DropdownItem>Ubicacion</DropdownItem>
                                         <DropdownItem>Categoria</DropdownItem>
                                         <DropdownItem>Estado</DropdownItem>
