@@ -6,7 +6,7 @@ const BD = mysql.createConnection({
     host:"localhost",
     user:"root",
     password:"root",
-    database:"dbsistemaprestamo"
+    database:"techborrow"
 });
 
 router.post('/RegistroPrestamo', (req,res) => {

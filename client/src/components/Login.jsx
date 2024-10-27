@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'; // Importa hook para navegación
 import LoginService from '../services/LoginService'; // Importa el servicio de inicio de sesión
 import logo from '../imagenes/escudo.png'; // Importa tu logo (asegúrate de ajustar la ruta según la ubicación correcta)
 
+
 function Login() {
-    const [username, setUsername] = useState(''); // Estado para el nombre de usuario
-    const [password, setPassword] = useState(''); // Estado para la contraseña
+    const [numeroempleado, setnumeroempleado] = useState(''); // Estado para el nombre de usuario
+    const [contraseña, setcontraseña] = useState(''); // Estado para la contraseña
     const navigate = useNavigate(); // Hook para navegación entre rutas
 
     // Función para manejar el envío del formulario de inicio de sesión
@@ -13,20 +14,23 @@ function Login() {
         event.preventDefault(); // Evita el comportamiento por defecto de enviar el formulario
 
         // Verifica que ambos campos estén completos
-        if (!username || !password) {
+        if (!numeroempleado || !contraseña) {
             alert('Por favor, completa todos los campos.');
             return;
         }
 
         // Llama al método de servicio para iniciar sesión con los datos ingresados
-        LoginService.login({ username, password })
-            .then(() => {
+        LoginService.autentificacion_usuario({ numeroempleado, contraseña })
+            .then((response) => {
+                console.log('Respuesta del servidor:', response);
                 alert('Inicio de sesión exitoso!'); // Muestra mensaje de éxito
-                navigate('/Menu.jsx'); // Redirige a la página del menú después del inicio de sesión exitoso
+                navigate('/Menu'); // Redirige a la página del menú después del inicio de sesión exitoso
             })
             .catch(error => {
-                alert('Error al iniciar sesión: ' + (error.response?.data || error.message)); // Muestra mensaje de error si ocurre un problema
-            });
+                    console.error('Error en el inicio de sesión:', error); // Agrega este log
+                    alert('Error al iniciar sesión: ' + (error.response?.data || error.message)); 
+                });
+               
     };
 
     return (
@@ -49,13 +53,13 @@ function Login() {
                         </label>
                         <input
                             type='text'
-                            id='username'
-                            name='username'
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)} // Actualiza el estado de username al escribir
+                            id='numeroempleado'
+                            name='numeroempleado'
+                            value={numeroempleado}
+                            onChange={(e) => setnumeroempleado(e.target.value)} // Actualiza el estado de username al escribir
                             className='w-full px-3 py-2 border rounded-md'
                             required // Campo requerido
-                            autoComplete='username'
+                            autoComplete='numeroempleado'
                         />
                     </div>
                     <div className='mb-4'>
@@ -66,8 +70,8 @@ function Login() {
                             type='password'
                             id='password'
                             name='password'
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)} // Actualiza el estado de password al escribir
+                            value={contraseña}
+                            onChange={(e) => setcontraseña(e.target.value)} // Actualiza el estado de password al escribir
                             className='w-full px-3 py-2 border rounded-md'
                             required // Campo requerido
                             autoComplete='current-password'
