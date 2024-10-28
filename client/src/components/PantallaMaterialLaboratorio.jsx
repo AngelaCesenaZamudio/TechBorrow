@@ -6,6 +6,7 @@ import { Toast } from 'primereact/toast';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
+import {Dialog} from 'primereact/dialog';
 //import PrestamoService from '../services/PrestamoService';
 
 function PantallaMaterialLaboratorio(){ 
@@ -21,6 +22,7 @@ function PantallaMaterialLaboratorio(){
     const [matriculaValida, setmatriculaValida] = useState(false);
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
+    const [showDialog, setShowDialog] = useState(false);
 
     const toast = useRef(null);
 
@@ -207,7 +209,7 @@ function PantallaMaterialLaboratorio(){
             </button>
         </div>
         </div>
-        <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4'>Registrar nuevo material</button>
+        <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4' onClick={()=> setShowDialog(true)}>Registrar nuevo material</button>
         </div>
         <hr className='my-4 border-gray-900'/>
 
@@ -254,6 +256,77 @@ function PantallaMaterialLaboratorio(){
             </tbody>
         </table>
 
+        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Registro Prestamo</span>}visible={showDialog}
+            style={{width:'50vw'}}
+            onHide={()=>setShowDialog(false)}>
+                 <form action="">
+                <div className="inline-block">
+                    <label htmlFor="" className="block">Clave</label>
+                    <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
+
+                    <label htmlFor="" className="block">Numero de Serie</label>
+                    <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
+
+                    <label htmlFor="" className="block">Modelo</label>
+                    <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+
+                    <label htmlFor="" className="block">Estado</label>
+                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione una opción</option>
+                        <option value="">Disponible</option>
+                        <option value="">Prestado</option>
+                        <option value="">Guardado</option>
+                        <option value="">Reservado</option>
+                    </select>
+
+                    <label htmlFor="" className="block">Categoria</label>
+                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione una opción</option>
+                        <option value="">Laptop</option>
+                        <option value="">Teclado</option>
+                        <option value="">Tv</option>
+                    </select>
+                </div>
+
+                <div className="block ">
+                    <label htmlFor="" className="block">Nombre</label>
+                    <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+
+                    <label htmlFor="" className="block">Marca</label>
+                    <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+
+                    <label htmlFor="" className="block">Permisos</label>
+                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione una opción</option>
+                        <option value="">Maestros</option>
+                        <option value="">Alumnos</option>
+                        <option value="">Ambos</option>
+                    </select>
+
+                    <label htmlFor="" className="block">Ubicacion</label>
+                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione una opción</option>
+                        <option value="">Laboratorio</option>
+                        <option value="">Cubiculos</option>
+                        <option value="">Aula</option>
+                        <option value="">Almacen</option>
+                    </select>
+                </div>
+
+                <div className="block">
+                    <label htmlFor="" className="block">Descripcion</label>
+                    <input type="text" name="" id="" className=" mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+
+                    <label for="date" class="block text-gray-700 font-semibold">Fecha</label>
+                    <input type="date" id="date" name="date" class="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+
+
+                    <label for="time" class="block text-gray-700 font-semibold">Hora</label>
+                    <input type="time" id="time" name="time" class=" p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                </div>
+
+            </form>
+            </Dialog>
             {/*
             
             
