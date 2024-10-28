@@ -6,6 +6,8 @@ import PantallaPrestamoMaterial from './components/PantallaPrestamoMaterial.jsx'
 import Footer from './components/footer.jsx';
 import MenuServicios from './components/MenuServicios.jsx';
 import PantallaMaterialLaboratorio from './components/PantallaMaterialLaboratorio.jsx';
+import PantallaRegistroMaterial from './components/PantallaRegistroMaterial.jsx';
+
 
 function App() {
     return (
@@ -20,6 +22,7 @@ function App() {
                 <Route path='/MenuServicios' element={<MenuServicios />} />
                 <Route path="/PantallaPrestamoMaterial" element={<PantallaPrestamoMaterial />} />
                 <Route path="/PantallaMaterialLaboratorio" element={<PantallaMaterialLaboratorio />} />
+                <Route path="/PantallaRegistroMaterial" element={<PantallaRegistroMaterial/>}/>
             </Routes>
             </main>
             <Footer />
