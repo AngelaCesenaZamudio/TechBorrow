@@ -7,6 +7,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
+import {Dialog} from 'primereact/dialog';
 
 function PantallaPrestamoMaterial(){ 
     const [id_prestamo,setid_prestamo] = useState(1);
@@ -20,6 +21,7 @@ function PantallaPrestamoMaterial(){
     const [matriculaValida, setmatriculaValida] = useState(false);
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
+    const [showDialog, setShowDialog] = useState(false);
 
     const toast = useRef(null);
 
@@ -206,7 +208,8 @@ function PantallaPrestamoMaterial(){
             </button>
         </div>
         </div>
-        <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4'>Registrar Prestamo</button>
+        <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4'
+        onClick={()=> setShowDialog(true)}>Registrar Prestamo</button>
         </div>
         <hr className='my-4 border-gray-900'/>
 
@@ -238,10 +241,17 @@ function PantallaPrestamoMaterial(){
                 ))}
             </tbody>
         </table>
+        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Registro Prestamo</span>}visible={showDialog}
+            style={{width:'50vw'}}
+            onHide={()=>setShowDialog(false)}>
+                <form>
+                    <div>
 
+                    </div>
+                    
+                </form>
+            </Dialog>
             {/*
-            
-            
             <div className='w-full h-full flex items-center justify-center mb-2'>   
             <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
             <input id='fecha' type='date' value={fecha_Prestamo} readOnly className='w-1/2 p-1 border-gray-300 rounded-md text-center'/>
@@ -254,6 +264,8 @@ function PantallaPrestamoMaterial(){
             <button className="bg-rose-600 text-black font-bold py-2 px-4 rounded">Cancelar</button>
             */}
         </div>
+
+        
         
     );
 }
