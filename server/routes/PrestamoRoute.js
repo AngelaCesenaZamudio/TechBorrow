@@ -49,11 +49,19 @@ router.post('/RegistroPrestamo', (req,res) => {
 });
 
 router.get('/obtenerMaterial', (req, res) => {
-    BD.query('SELECT * FROM material', (err, results) => {
-        if(err) {
+    const query ='SELECT p.fecha,'+ 
+    'm.nombre_material, s.matricula_numeroempleado, c.categoria '+
+    'FROM prestamo AS p'+ 
+    ' JOIN material AS m ON p.id_material = m.id_material'+
+    ' JOIN solicitante AS s ON p.id_solicitante = s.id_solicitante'+
+    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'; 
+        
+    BD.query(query, (err, results) => {
+        if(err){
             console.log(err);
             return res.status(500).send("Error");
         }
+        console.log(results);
         res.status(200).json(results);
     });
 });

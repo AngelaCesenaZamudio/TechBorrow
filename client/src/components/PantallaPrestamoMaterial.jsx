@@ -9,15 +9,14 @@ import './Prestamo.css';
 import PrestamoService from '../services/PrestamoService';
 
 function PantallaPrestamoMaterial(){ 
-    const [id_Prestamo,setid_Prestamo] = useState(1);
-    const [matricula_claveempleado_solicitante,setmatricula_claveempleado_solicitante] = useState("");
+    const [id_prestamo,setid_prestamo] = useState(1);
+    const [matricula_numeroempleado,setmatricula_numeroempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
-    const [categoria_material,setcategoria_material] = useState("");
-    const [fecha_Prestamo,setfecha_Prestamo] = useState("");
-    const [hora_Prestamo,sethora_Prestamo] = useState("");
+    const [categoria,setcategoria] = useState("");
+    const [fecha,setfecha] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
-    const [materiales, setMateriales] = useState([]);
+    const [prestamos, setprestamos] = useState([]);
     const [matriculaValida, setmatriculaValida] = useState(false);
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
@@ -136,7 +135,7 @@ function PantallaPrestamoMaterial(){
     }
 
     //Funcion que genera la fecha
-    useEffect(() => {
+    /*useEffect(() => {
         const obtenerFecha = () =>{
             const now  = new Date();
             const year = now.getFullYear();
@@ -179,19 +178,19 @@ function PantallaPrestamoMaterial(){
 
         const hora_Prestamo = obtenerHora();
         sethora_Prestamo(hora_Prestamo);
-    }, []);
+    }, []);*/
 
     //Funcion para obtener material y mostrar
     useEffect(() =>{
-        const fetchMateriales = async () => {
+        const fetchPrestamos = async () => {
             try{
                 const response = await PrestamoService.obtenerMaterial();
-                setMateriales(response.data);
+                setprestamos(response.data);
             }catch(error){
                 MensajeEr("Error al obtener los materiales");
             }
         };
-        fetchMateriales();
+        fetchPrestamos();
     }, []);
 
     return(
@@ -221,12 +220,12 @@ function PantallaPrestamoMaterial(){
                 </tr>
             </thead>
             <tbody>
-                
-
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>fecha</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>matricula</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>nombre</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>categoria</td>
+                {prestamos.map((prestamos,index) => (
+                <tr key={index}>    
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.fecha}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.matricula_numeroempleado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.nombre_material}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.categoria}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -235,6 +234,8 @@ function PantallaPrestamoMaterial(){
                         <img src='./src/imagenes/eliminar.png' alt='Modificar' className='h-5 w-5 inline<'/>
                     </button>
                 </td>
+                </tr>
+                ))}
             </tbody>
         </table>
 
