@@ -11,7 +11,7 @@ const BD = mysql.createConnection({
 });
 
 // ModificarMaterialRoute: ruta para editar un material en la base de datos
-router.put('/modificarMaterial', (req, res) => {
+router.put('/PantallaMaterialLaboratorio', (req, res) => {
     const {
         id_material,         // ID del material para identificar el registro
         clave,               // Nueva clave del material
