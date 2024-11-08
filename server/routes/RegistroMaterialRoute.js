@@ -24,15 +24,7 @@ router.post('/RegistroMaterial', (req,res) => {
     const permiso = req.body.permiso;
     const fechaRegistro = req.body.fechaRegistro;
     
-    
-{/*//Si el prestamo ya existe por id
-    BD.query('SELECT * FROM material WHERE id_material = ?', [id_material], (err,results)=>{
-        if(err){
-            console.log(err);
-            return res.status(500).send("Error");
-        }
-   */}
-       console.log("Fuera del query");
+   
         BD.query('INSERT INTO material(id_material, clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
             [id_material, clave, id_ubicacion, nombre_material, numserie,id_categoria, marca, modelo,id_estado,descripcion, permiso,fechaRegistro ], (err, result)=>{
                 if(err){

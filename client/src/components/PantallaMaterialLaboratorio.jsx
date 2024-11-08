@@ -321,7 +321,7 @@ function PantallaMaterialLaboratorio(){
 
                 <div className="block  p-3">
                    
-                    <label for="date" htmlFor="fechaRegistro" class="inline-block text-gray-700 font-semibold p-4">Fecha</label>
+                    <label  htmlFor="fechaRegistro" class="inline-block text-gray-700 font-semibold p-4">Fecha</label>
                     <input type="date" id="fechaRegistro" name="date" class="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
 
                     </div> 
