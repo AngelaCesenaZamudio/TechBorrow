@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Toast } from 'primereact/toast';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
-import './Prestamo.css';
+import './Alertas.css';
 import {Dialog} from 'primereact/dialog';
 //import PrestamoService from '../services/PrestamoService';
 
@@ -260,9 +260,9 @@ function PantallaMaterialLaboratorio(){
             style={{width:'50vw'}}
             onHide={()=>setShowDialog(false)}>
                  <form action="">
-                <div className="inline-block">
-                    <label htmlFor="" className="block">Clave</label>
-                    <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
+                <div className=" inline-block  w-1/2 p-4">
+                    <label htmlFor="" className="block ">Clave</label>
+                    <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400 w-full"  />
 
                     <label htmlFor="" className="block">Numero de Serie</label>
                     <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
@@ -288,12 +288,14 @@ function PantallaMaterialLaboratorio(){
                     </select>
                 </div>
 
-                <div className="block ">
-                    <label htmlFor="" className="block">Nombre</label>
+                <div className="inline-block  w-1/2 p-4 mt-0">
+                    <label htmlFor="" className="block mt-0">Nombre</label>
                     <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
-
+                    
                     <label htmlFor="" className="block">Marca</label>
                     <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+
+                   
 
                     <label htmlFor="" className="block">Permisos</label>
                     <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -311,17 +313,19 @@ function PantallaMaterialLaboratorio(){
                         <option value="">Aula</option>
                         <option value="">Almacen</option>
                     </select>
+                    <label htmlFor="" className="block">Descripcion</label>
+                    <input type="text" name="" id="" className=" w-full p-2 border border-gray-300  resize-none h-6 transition-all duration-300 ease-in-out focus:h-40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+
+                    
                 </div>
 
-                <div className="block">
-                    <label htmlFor="" className="block">Descripcion</label>
-                    <input type="text" name="" id="" className=" mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
-
-                    <label for="date" class="block text-gray-700 font-semibold">Fecha</label>
+                <div className="block  p-3">
+                   
+                    <label for="date" class="inline-block text-gray-700 font-semibold p-4">Fecha</label>
                     <input type="date" id="date" name="date" class="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
 
 
-                    <label for="time" class="block text-gray-700 font-semibold">Hora</label>
+                    <label for="time" class="inline-block text-gray-700 font-semibold p-4">Hora</label>
                     <input type="time" id="time" name="time" class=" p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
                 </div>
 
