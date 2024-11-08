@@ -120,8 +120,8 @@ router.get('/estadoMaterial', (req, res) => {
 
 router.get('/materialUbicacion', (req,res) =>{
     const idMaterial = req.query.id_material;
-    const query='SELECT u.nombre_ubicacion, m.nombre_material FROM material AS m'+
-    'JOIN ubicacion AS u ON m.id_ubicacion = u.id_ubicacion WHERE m.id_material = ?';
+    const query='SELECT material.nombre_material, material.categoria, ubicacion.nombre AS ubicacion_nombre'+
+    'FROM material JOIN ubicacion ON material.id_ubicacion = ubicacion.id WHERE material.id=?';
     BD.query(query, [idMaterial], (err, results) => {
         if(err){
             console.log(err);

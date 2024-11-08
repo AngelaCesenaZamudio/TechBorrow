@@ -23,7 +23,9 @@ function PantallaPrestamoMaterial(){
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
-   
+    const [materialesDisponibles, setmaterialesDisponibles] = useState([]);
+    const [IdUbicacion, setIdUbicacion] = useState("");
+
     const toast = useRef(null);
 
     //Ubicaciones por mostrar
@@ -91,11 +93,18 @@ function PantallaPrestamoMaterial(){
         setIdUbicacion(ubicacionId);
 
         if(ubicacionId){
-        const materiales = await obtenerMaterialesPorUbicacion(ubicacionId);
-
-        const materialesDisponibles = materiales.filter(material =>material.disponible);
-
-        setmaterialesDisponibles(materialesDisponibles);
+            try{
+                const response = await fetch('/materialUbicacion?id_ubicacion=${ubicacionId}');
+                if(response.ok){
+                    const materiales = await response.json();
+                    setmaterialesDisponibles(materiales);
+                }else{
+                    MensajeEr("Error al obtener los materiales de la ubicacion seleccionada");
+                }
+            }catch(error){
+                console.log("Error: ",error);
+                MensajeEr("Error al conectar con el servidor");
+            }
         }else{
             setmaterialesDisponibles([]);
         }
@@ -289,8 +298,23 @@ function PantallaPrestamoMaterial(){
                         </select>
                      </div>
                     </div>
-
-
+            <h1 className='flex justify-center font-semibold text-xl'>Material</h1>
+            <table className='min-w-full border-collapse'>
+            <thead>
+                <tr>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {materialesDisponibles.map((material,index) => (
+                <tr key={index}>    
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{material.nombre_material}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{material.categoria}</td>
+            </tr>
+            ))}
+            </tbody>
+            </table>        
                      
             <div className='w-full mb-2 flex justify-center'> 
                 <div className='w-1/4'>
@@ -317,7 +341,7 @@ function PantallaPrestamoMaterial(){
              </div>
             </div>
 
-            {/*Botones del codigo con acciones, mandar a services y reestablecer la pagina*/}
+            {/*Botones del codigo con acciones, mandar a services y limpiar campos*/}
             <div className='mb-2 flex justify-center space-x-4'>  
             <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded mr-10" onClick={(event) => agregar(event)}>Guardar</button>
             <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded mr-10">Borrar</button>
