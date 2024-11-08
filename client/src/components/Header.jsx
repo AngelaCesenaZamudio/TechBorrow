@@ -44,7 +44,7 @@ function Header(){
             
             <DropdownMenu>
             <DropdownItem><a href="./MenuServicios">Menu de servicios</a></DropdownItem>
-                 <DropdownItem><a href="./Prestamo">Prestamo</a></DropdownItem>
+                 <DropdownItem><a href="./PantallaPrestamoMaterial">Prestamo</a></DropdownItem>
                  <DropdownItem><a href="">Devolucion</a></DropdownItem>
                  <DropdownItem>Reporte</DropdownItem>
                  <DropdownItem>Inventario</DropdownItem>
