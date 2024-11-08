@@ -16,7 +16,6 @@ router.post('/RegistroPrestamo', (req,res) => {
     const categoria_material = req.body.categoria_material;
     const fecha_Prestamo = req.body.fecha_Prestamo;
     const hora_Prestamo = req.body.hora_Prestamo;
-    const nombreMaterial = req.params.nombre;
 
     //Si el prestamo ya existe por id
     BD.query('SELECT * FROM prestamo WHERE id_Prestamo = ?', [id_Prestamo], (err,results)=>{
@@ -48,7 +47,7 @@ router.post('/RegistroPrestamo', (req,res) => {
     });
 });
 
-router.get('/obtenerMaterial', (req, res) => {
+router.get('/obtenerPrestamos', (req, res) => {
     const query ='SELECT p.fecha,'+ 
     'm.nombre_material, s.matricula_numeroempleado, c.categoria '+
     'FROM prestamo AS p'+ 
@@ -103,11 +102,11 @@ router.get('/validarMaterial', (req, res) => {
 
 router.get('/estadoMaterial', (req, res) => {
     const material = req.query.material;
-    BD.query('SELECT * FROM material WHERE estado =?', 
-        [matricula], (err, results) => {
+    BD.query('SELECT estado FROM material WHERE nombre_material = ?', 
+        [material], (err, results) => {
             if(err){
                 console.log(err);
-                return res.status(500).send('Error');
+                return res.status(500).send('Error al obtener el material.');
             }
 
             if(results.length>0){
@@ -118,4 +117,23 @@ router.get('/estadoMaterial', (req, res) => {
             }
     });
 });
+
+router.get('/materialUbicacion', (req,res) =>{
+    const idMaterial = req.query.id_material;
+    const query='SELECT u.nombre_ubicacion, m.nombre_material FROM material AS m'+
+    'JOIN ubicacion AS u ON m.id_ubicacion = u.id_ubicacion WHERE m.id_material = ?';
+    BD.query(query, [idMaterial], (err, results) => {
+        if(err){
+            console.log(err);
+            return res.status(500).send("Error en la consulta de ubicacion");
+        }
+
+        if(results.length>0){
+            res.status(200).json(results[0]);
+        }else{
+            res.status(404).send("Ubicacion no encontrada para el material especificado");
+        }
+    });
+})
+
 module.exports = router;

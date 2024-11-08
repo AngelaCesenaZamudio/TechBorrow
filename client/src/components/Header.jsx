@@ -20,7 +20,6 @@ function Header(){
                 <span className='font-bold text-lg text-white'><a href='/Menu'>Laboratorio de Sistemas Computacionales</a></span>
             </div>
             </div>
-
           {/* Ícono de Usuario con menú desplegable */}
           <div className='flex space-x-4 text-xl'>
                     <Dropdown isOpen={userDropdown} toggle={toggleUserDropdown}>

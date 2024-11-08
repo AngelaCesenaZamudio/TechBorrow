@@ -4,8 +4,8 @@ const PrestamoService = {
     RegistroPrestamo: (datos) => {
         return Axios.post("http://localhost:3001/PrestamoRoute/RegistroPrestamo", datos);
     },
-    obtenerMaterial: () =>{
-        return Axios.get("http://localhost:3001/PrestamoRoute/obtenerMaterial");
+    obtenerPrestamos: () =>{
+        return Axios.get("http://localhost:3001/PrestamoRoute/obtenerPrestamos");
     },
     validarMatricula: (matricula) =>{
         return Axios.get('http://localhost:3001/PrestamoRoute/validarMatricula',{
@@ -27,7 +27,13 @@ const PrestamoService = {
                 material : material
             }
         });
-    }
-}
+    },
+    obtenerMaterialPorUbicacion: async (UbicacionId) =>{
+        const response = await axios.get('https://localhost:3001/PrestamoRoute/materialUbicacion',{
+            params:{id_material:idMaterial}
+        });
+        return response.data;
+    },
+};
 
 export default PrestamoService;
