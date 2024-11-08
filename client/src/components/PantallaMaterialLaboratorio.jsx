@@ -327,6 +327,24 @@ function PantallaMaterialLaboratorio(){
 
                     <label for="time" class="inline-block text-gray-700 font-semibold p-4">Hora</label>
                     <input type="time" id="time" name="time" class=" p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                
+                    </div> 
+
+                <div class="flex justify-center">
+                {/*Boton del formulario*/}
+                <button
+                type="submit"
+                class="w-1/3  mx-auto block bg-green-500 text-white font-semibold py-2 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                >
+                Guardar
+                </button>
+                
+                <button
+                type="submit"
+                class="w-1/3   mx-auto block bg-rose-500 text-white font-semibold py-2 rounded hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                >
+                Borrar
+                </button>   
                 </div>
 
             </form>
