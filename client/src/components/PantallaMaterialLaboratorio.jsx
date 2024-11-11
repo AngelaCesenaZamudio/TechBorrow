@@ -5,17 +5,24 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Toast } from 'primereact/toast';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
-import './Prestamo.css';
+import './Alertas.css';
 import {Dialog} from 'primereact/dialog';
+import RegistroMaterialServices from '../services/RegistroMaterialServices';
 import PrestamoService from '../services/PrestamoService';
 
 function PantallaMaterialLaboratorio(){ 
-    const [id_Prestamo,setid_Prestamo] = useState(1);
-    const [matricula_claveempleado_solicitante,setmatricula_claveempleado_solicitante] = useState("");
+    const [id_material,setid_material] = useState(1);
+    const [clave,setclave] = useState("");
+    const [id_ubicacion,setid_ubicacion] = useState("");
     const [nombre_material,setnombre_material] = useState("");
-    const [categoria_material,setcategoria_material] = useState("");
-    const [fecha_Prestamo,setfecha_Prestamo] = useState("");
-    const [hora_Prestamo,sethora_Prestamo] = useState("");
+    const [numserie,setnumserie] = useState("");
+    const [id_categoria,setid_categoria] = useState("");
+    const [marca,setmarca] = useState("");
+    const [modelo,setmodelo] = useState("");
+    const [id_estado,setid_estado] = useState("");
+    const [descripcion,setdescripcion] = useState("");
+    const [permiso,setpermiso] = useState("");
+    const [fechaRegistro,setfechaRegistro] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
     const [materiales, setMateriales] = useState([]);
@@ -40,7 +47,7 @@ function PantallaMaterialLaboratorio(){
     const MensajeEr = (mensaje)=>{
         toast.current.show({severity: 'error', summary: 'Error', detail: mensaje, life: 3000});
     }
-
+    {/*
     //Funcion para que no acepte simbolos
         const handleMatriculaChange = async (event) =>{
         const value = event.target.value;
@@ -104,21 +111,24 @@ function PantallaMaterialLaboratorio(){
                 } 
         }
     }
-
+*/}
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
         event.preventDefault();
-        if(!matricula_claveempleado_solicitante || !nombre_material) {
-            MensajeAd("Hay campos vacios");
-            return;
-        }
-        PrestamoService.RegistroPrestamo({
-            id_Prestamo:id_Prestamo,
-            matricula_claveempleado_solicitante:matricula_claveempleado_solicitante,
+       
+        RegistroMaterialServices.RegistroMaterial({
+            id_material:id_material,
+            clave:clave,
+            id_ubicacion:id_ubicacion,
             nombre_material:nombre_material,
-            categoria_material:categoria_material,
-            fecha_Prestamo:fecha_Prestamo,
-            hora_Prestamo:hora_Prestamo
+            numserie:numserie,
+            id_categoria:id_categoria,
+            marca:marca,
+            modelo:modelo,
+            id_estado:id_estado,
+            descripcion:descripcion,
+            permiso:permiso,
+            fechaRegistro: fechaRegistro
         }).then(response=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
@@ -156,32 +166,17 @@ function PantallaMaterialLaboratorio(){
             return `${year}-${month}-${day}`;
         };
 
-        const fecha_Prestamo = obtenerFecha();
-        setfecha_Prestamo(fecha_Prestamo);
+        const fechaRegistro = obtenerFecha();
+        setfechaRegistro(fechaRegistro);
     }, []);
 
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        console.log(fecha_Prestamo)
+        console.log(fechaRegistro)
     }
 
-    //Funcion que genera la hora
-    useEffect(() => {
-        const obtenerHora = () =>{
-            const now = new Date();
-            let hour = now.getHours();
-            let minute = now.getMinutes();
-
-            hour = hour < 10 ? `0${hour}` : hour;
-            minute = minute < 10 ? `0${minute}` : minute;
-
-            return `${hour}:${minute}`;
-        };
-
-        const hora_Prestamo = obtenerHora();
-        sethora_Prestamo(hora_Prestamo);
-    }, []);
+   
 
     //Funcion para obtener material y mostrar
     useEffect(() =>{
@@ -260,69 +255,93 @@ function PantallaMaterialLaboratorio(){
             style={{width:'50vw'}}
             onHide={()=>setShowDialog(false)}>
                  <form action="">
-                <div className="inline-block">
-                    <label htmlFor="" className="block">Clave</label>
-                    <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
+                <div className=" inline-block  w-1/2 p-4">
+                    <label htmlFor="clave" className="block ">Clave</label>
+                    <input type="text" name="" id="clave" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400 w-full"  />
 
-                    <label htmlFor="" className="block">Numero de Serie</label>
-                    <input type="number" name="" id="" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
+                    <label htmlFor="numserie" className="block">Numero de Serie</label>
+                    <input type="text" name="" id="numserie" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
 
-                    <label htmlFor="" className="block">Modelo</label>
-                    <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+                    <label htmlFor="modelo" className="block">Modelo</label>
+                    <input type="text" name="" id="modelo" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
 
-                    <label htmlFor="" className="block">Estado</label>
-                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label htmlFor="id_estado" className="block">Estado</label>
+                    <select id="id_estado" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Seleccione una opción</option>
-                        <option value="">Disponible</option>
-                        <option value="">Prestado</option>
-                        <option value="">Guardado</option>
-                        <option value="">Reservado</option>
+                        <option value="1">Disponible</option>
+                        <option value="2">Prestado</option>
+                        <option value="3">Reparacion</option>
+                        <option value="4">Guardado</option>
+                        <option value="5">Reserva</option>
                     </select>
 
-                    <label htmlFor="" className="block">Categoria</label>
-                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label htmlFor="id_categoria" className="block">Categoria</label>
+                    <select id="id_categoria" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Seleccione una opción</option>
-                        <option value="">Laptop</option>
-                        <option value="">Teclado</option>
-                        <option value="">Tv</option>
-                    </select>
-                </div>
-
-                <div className="block ">
-                    <label htmlFor="" className="block">Nombre</label>
-                    <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
-
-                    <label htmlFor="" className="block">Marca</label>
-                    <input type="text" name="" id="" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
-
-                    <label htmlFor="" className="block">Permisos</label>
-                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccione una opción</option>
-                        <option value="">Maestros</option>
-                        <option value="">Alumnos</option>
-                        <option value="">Ambos</option>
-                    </select>
-
-                    <label htmlFor="" className="block">Ubicacion</label>
-                    <select id="" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccione una opción</option>
-                        <option value="">Laboratorio</option>
-                        <option value="">Cubiculos</option>
-                        <option value="">Aula</option>
-                        <option value="">Almacen</option>
+                        <option value="1">Laptop</option>
+                        <option value="2">Mouse</option>
+                        <option value="3">Teclado</option>
+                        <option value="4">Pantalla</option>
+                        <option value="5">Adaptador</option>
+                        <option value="6">libro</option>
+                        <option value="7">herramienta</option>
                     </select>
                 </div>
 
-                <div className="block">
-                    <label htmlFor="" className="block">Descripcion</label>
-                    <input type="text" name="" id="" className=" mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+                <div className="inline-block  w-1/2 p-4 mt-0">
+                    <label htmlFor="nombre_material" className="block mt-0">Nombre</label>
+                    <input type="text" name="" id="nombre_material" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+                    
+                    <label htmlFor="marca" className="block">Marca</label>
+                    <input type="text" name="" id="marca" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
 
-                    <label for="date" class="block text-gray-700 font-semibold">Fecha</label>
-                    <input type="date" id="date" name="date" class="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+                   
 
+                    <label htmlFor="permiso" className="block">Permisos</label>
+                    <select id="permiso" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione una opción</option>
+                        <option value="1">Maestros</option>
+                        <option value="2">Alumnos</option>
+                        <option value="3">Ambos</option>
+                    </select>
 
-                    <label for="time" class="block text-gray-700 font-semibold">Hora</label>
-                    <input type="time" id="time" name="time" class=" p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                    <label htmlFor="id_ubicacion" className="block">Ubicacion</label>
+                    <select id="id_ubicacion" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione una opción</option>
+                        <option value="1">Aula</option>
+                        <option value="2">Laboratorio</option>
+                        <option value="3">Cubiculo</option>
+                        <option value="4">Almacen</option>
+                    </select>
+                    <label htmlFor="descripcion" className="block">Descripcion</label>
+                    <input type="text" name="" id="descripcion" className=" w-full p-2 border border-gray-300  resize-none h-6 transition-all duration-300 ease-in-out focus:h-40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+
+                    
+                </div>
+
+                <div className="block  p-3">
+                   
+                    <label  htmlFor="fechaRegistro" class="inline-block text-gray-700 font-semibold p-4">Fecha</label>
+                    <input type="date" id="fechaRegistro" name="date" class="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+
+                    </div> 
+
+                <div class="flex justify-center">
+                {/*Boton del formulario*/}
+                <button
+                type="submit"
+                class="w-1/3  mx-auto block bg-green-500 text-white font-semibold py-2 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+                onClick={(event) => agregar(event)}
+                >
+                Guardar
+                </button>
+                
+                <button
+                type="submit"
+                class="w-1/3   mx-auto block bg-rose-500 text-white font-semibold py-2 rounded hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                >
+                Borrar
+                </button>   
                 </div>
 
             </form>
