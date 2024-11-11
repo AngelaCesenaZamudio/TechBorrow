@@ -7,7 +7,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
 import {Dialog} from 'primereact/dialog';
-//import PrestamoService from '../services/PrestamoService';
+import PrestamoService from '../services/PrestamoService';
 
 function PantallaMaterialLaboratorio(){ 
     const [id_Prestamo,setid_Prestamo] = useState(1);
