@@ -62,7 +62,7 @@ function Header(){
                             {dropdown4 && (
                                 <div className='border-transparent bg-white shadow-lg mt-2 ml-3 p-2'>
                                     <DropdownMenu>
-                                        <DropdownItem><a href="./PantallaRegistroMaterial">Material</a></DropdownItem>
+                                        <DropdownItem><a href="./PantallaMaterialLaboratorio">Material</a></DropdownItem>
                                         <DropdownItem>Ubicacion</DropdownItem>
                                         <DropdownItem>Categoria</DropdownItem>
                                         <DropdownItem>Estado</DropdownItem>
