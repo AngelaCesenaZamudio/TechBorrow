@@ -162,10 +162,8 @@ router.get('/materialUbicacion', (req,res) =>{
     console.log("Solicitud recibida:", req.query);
     const idUbicacion = req.query.id_ubicacion;
 
-    console.log("id:",idUbicacion);
-
     if(!idUbicacion){
-        return res.status(400).send("El id_ubicacion es necesario");
+        return res.status(400).json({error: "El id_ubicacion es necesario"});
     }
 
     const queryUbicacion='SELECT ubicacion FROM ubicacion where id_ubicacion=?';
@@ -173,26 +171,28 @@ router.get('/materialUbicacion', (req,res) =>{
     BD.query(queryUbicacion, [idUbicacion], (err, ubicacionresults) => {
         if(err){
             console.log(err);
-            return res.status(500).send("Error en la consulta de ubicacion");
+            return res.status(500).json("Error en la consulta de ubicacion");
         }
 
         if(ubicacionresults.length===0){
-            res.status(404).send("Ubicacion no encontrada");
+            res.status(404).json("Ubicacion no encontrada");
         }
 
-        const queryMaterial = `SELECT material.nombre_material, material.categoria`+
-        `FROM material WHERE material.id_ubicacion = ? AND material.estado ='Disponible'`;
+        const queryMaterial = `SELECT material.nombre_material, categoria.categoria, estado.estado `+
+        `FROM material JOIN categoria ON material.id_categoria = categoria.id_categoria `+
+        `JOIN estado ON material.id_estado = estado.id_estado `+
+        `WHERE material.id_ubicacion = ? AND estado.estado ='Disponible'`;
 
         BD.query(queryMaterial,[idUbicacion], (err,materialResults) =>{
             if(err){
                 console.log(err);
-                return res.status(500).send("Error en la consulta de materiales");
+                return res.status(500).json("Error en la consulta de materiales");
             }
 
-            if(materialResults>0){
-            res.status(200).json(materialResults);
+            if(materialResults.length===0){
+                res.status(404).json("No hay materiales disponibles en esta ubicacion");
             }else{
-                res.status(404).send("No hay materiales disponibles en esta ubicacion");
+                res.status(200).json(materialResults);
             }
         })
     });
