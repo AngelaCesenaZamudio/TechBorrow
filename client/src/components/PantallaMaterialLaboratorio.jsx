@@ -346,4 +346,5 @@ function PantallaMaterialLaboratorio(){
     );
 }
 
+
 export default PantallaMaterialLaboratorio;
