@@ -8,7 +8,7 @@ import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
 import {Dialog} from 'primereact/dialog';
 import RegistroMaterialServices from '../services/RegistroMaterialServices';
-//import PrestamoService from '../services/PrestamoService';
+import PrestamoService from '../services/PrestamoService';
 
 function PantallaMaterialLaboratorio(){ 
     const [id_material,setid_material] = useState(1);

@@ -6,8 +6,9 @@ function Menu() {
 
   return (
     <div className='bg-white text-xl font-bold max-w-7xl mx-auto p-4'>
-     <h1 className='mb-4'>Sistema para el material de laboratorio</h1>
-
+     <h1 className='mb-4'>BIENVENIDO A LA PLATAFORMA DE MATERIAL DE LABORATORIO</h1>
+     
+  {/*
      <div className="flex items-right justify-center mb-4">
      <div className='flex w-full'>
      <div className='bg-green-700 w-2 h-full rounded-l-md'></div>
@@ -54,7 +55,7 @@ function Menu() {
           </span>
         </button>
       </div>
-    </div>
+    </div>*/}
 
     
   </div>

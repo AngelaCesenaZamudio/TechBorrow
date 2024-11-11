@@ -8,13 +8,14 @@ import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
 import PrestamoService from '../services/PrestamoService';
 import {Dialog} from 'primereact/dialog';
+import debounce from 'lodash.debounce';
 
 function PantallaPrestamoMaterial(){ 
     const [id_prestamo,setid_prestamo] = useState(1);
-    const [matricula_numeroempleado,setmatricula_numeroempleado] = useState("");
+    const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
-    const [categoria,setcategoria] = useState("");
     const [fecha,setfecha] = useState("");
+    const [hora,sethora] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
     const [prestamos, setprestamos] = useState([]);
@@ -22,8 +23,19 @@ function PantallaPrestamoMaterial(){
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
+    const [materialesDisponibles, setmaterialesDisponibles] = useState([]);
+    const [IdUbicacion, setIdUbicacion] = useState("");
+    const [comentarios, setcomentarios] = useState("");
 
     const toast = useRef(null);
+
+    //Ubicaciones por mostrar
+    const [ubicaciones] = useState ([
+        {id: 1, nombre:"Laboratorio"},
+        {id: 2, nombre: "Aula"},
+        {id: 3, nombre: "Cubiculos"},
+        {id: 4, nombre: "Almacen"},
+    ])
 
     //Mensaje de confirmacion de exito
     const MensajeEx = (mensaje) =>{
@@ -41,81 +53,72 @@ function PantallaPrestamoMaterial(){
     }
 
     //Funcion para que no acepte simbolos
-        const handleMatriculaChange = async (event) =>{
+        const handleMatriculaChange = (event) =>{
         const value = event.target.value;
         const regex = /^[0-9\b]+$/;
 
         if(value === "" || regex.test(value)){
-            setmatricula_claveempleado_solicitante(value);
-    
-            //Para validar la matricula
-            if(value !==""){
-                try{
-                const response = await PrestamoService.validarMatricula(value);
-                    if(response.status ===200){
-                        setmatriculaValida(true);
-                        MensajeEx("Matricula vigente");
-                        seterrorMatricula('');
-                        setisFieldDisabled(false);
-                    }
-                }catch(error){
-                    if(error.response&&error.response.status===400){
-                        setmatriculaValida(false);
-                        MensajeEr("Matricula no vigente");
-                        setisFieldDisabled(true);
-                    }else{
-                        seterrorMatricula("Error al validar");
-                        setisFieldDisabled(true);
-                    }
-                } 
+            setmatricula_claveempleado(value);
+
+            if(value!==""){
+                debounceValidaMatricula(value);
             }else{
                 setisFieldDisabled(true);
             }
         }else{
             MensajeAd("Solo se permite numeros");
         }
-    }
+    };
 
-    //Funcion para validar el material
-    const handleMaterialChange = async (event) =>{
-        const value = event.target.value;
-            setnombre_material(value);
-    
-            //Para validar el material libre
-            if(value !==""){
-                try{
-                const response = await PrestamoService.validarMaterial(value);
-                    if(response.status ===200){
-                        setmatriculaValida(true);
-                        MensajeEx("Material habilitado");
-                        seterrorMatricula('');
-                        setisFieldDisabled(false);
-                    }
-                }catch(error){
-                    if(error.response&&error.response.status===400){
-                        setmatriculaValida(false);
-                        MensajeEr("Material no valido");
-                        setisFieldDisabled(true);
-                    }else{
-                        seterrorMatricula("Error al validar");
-                        setisFieldDisabled(true);
-                    }
-                } 
+    //Metodo que valida luego de comprobar que no hay letras ni simbolos
+    const debounceValidaMatricula = debounce(async(value) => {
+        if(value.length>=7){
+        try{
+            const response = await PrestamoService.validarMatricula_Claveempleado(value);
+            if(response.status===200){
+                setmatriculaValida(true);
+                MensajeEx("Solicitante valido");
+                seterrorMatricula('');
+                setisFieldDisabled(false);
+            }
+        }catch(error){
+            if(error.response){
+                //Solicitante no registrado
+                if(error.response.status===404){
+                MensajeEr("Solicitante no registrado");
+            }else if(error.response.status===400){
+                if(error.response.data === "El solicitante tiene adeudos pendientes."){
+                   //Solicitante con adeudos
+                    MensajeEr("El solicitante tiene adeudos pendientes.");
+
+                }else if(error.response.data==="El solicitante ya tiene un prestamo activo"){
+                    //Solicitante con prestamos activo
+                    MensajeEr("El solicitante ya tiene un prestamo activo");
+                }
+                else{
+                    MensajeEr("Solicitante no activo o problemas con adeudos");
+                }
+            }else{
+                MensajeEr("Error al validar");
+            }
+        }
         }
     }
+    },500);
 
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
         event.preventDefault();
-        if(!matricula_claveempleado_solicitante || !nombre_material) {
+        if(!matricula_claveempleado || !nombre_material) {
             MensajeAd("Hay campos vacios");
             return;
         }
         PrestamoService.RegistroPrestamo({
             id_Prestamo:id_Prestamo,
-            matricula_claveempleado_solicitante:matricula_claveempleado_solicitante,
+            matricula_claveempleado:matricula_claveempleado,
             nombre_material:nombre_material,
-            categoria_material:categoria_material,
+            estado:estado,
+            comentarios:comentarios,
             fecha_Prestamo:fecha_Prestamo,
             hora_Prestamo:hora_Prestamo
         }).then(response=>{
@@ -137,7 +140,7 @@ function PantallaPrestamoMaterial(){
     }
 
     //Funcion que genera la fecha
-    /*useEffect(() => {
+    useEffect(() => {
         const obtenerFecha = () =>{
             const now  = new Date();
             const year = now.getFullYear();
@@ -156,7 +159,7 @@ function PantallaPrestamoMaterial(){
         };
 
         const fecha_Prestamo = obtenerFecha();
-        setfecha_Prestamo(fecha_Prestamo);
+        setfecha(fecha_Prestamo);
     }, []);
 
     const handleSubmit = (event) => {
@@ -179,14 +182,14 @@ function PantallaPrestamoMaterial(){
         };
 
         const hora_Prestamo = obtenerHora();
-        sethora_Prestamo(hora_Prestamo);
-    }, []);*/
+        sethora(hora_Prestamo);
+    }, []);
 
-    //Funcion para obtener material y mostrar
+    //Funcion para obtener los prestamos y mostrarlos
     useEffect(() =>{
         const fetchPrestamos = async () => {
             try{
-                const response = await PrestamoService.obtenerMaterial();
+                const response = await PrestamoService.obtenerPrestamos();
                 setprestamos(response.data);
             }catch(error){
                 MensajeEr("Error al obtener los materiales");
@@ -195,7 +198,41 @@ function PantallaPrestamoMaterial(){
         fetchPrestamos();
     }, []);
 
+    //Funcion para mandar material disponible
+    const handleUbicacionChange = async(event) =>{
+        const ubicacionId = event.target.value;
+        setIdUbicacion(ubicacionId);
+    
+        if(ubicacionId){
+            try{
+                const response = await fetch(`/materialUbicacion?id_ubicacion=${ubicacionId}`);
+                if(response.ok){
+                    const materiales = await response.json();
+                    setmaterialesDisponibles(materiales);
+                }else{
+                    console.error("Error en la respuesta:", response.status, response.statusText);
+                    MensajeEr("Error al obtener los materiales de la ubicacion seleccionada");
+                    setmaterialesDisponibles([]);
+                }
+            }catch(error){
+                MensajeEr("Error al conectar con el servidor");
+            }
+        }else{
+            setmaterialesDisponibles([]);
+            }
+        }
+
+    const handleinputChange =(e) =>{
+            setcomentarios(e.target.value);
+    };
+
+    const handleseleccionMaterial =(material)=>{
+        setnombre_material(material.nombre_material);
+    };
+    
     return(
+        <div>
+        <Toast ref={toast} />
         <div className='bg-white text-xl font-bold max-w-7xl mx-auto p-4'>
         <div className='flex items-center justify-between mb-4'>
         <h1 className='flex-none mb-4'>Prestamos</h1>
@@ -225,10 +262,10 @@ function PantallaPrestamoMaterial(){
             <tbody>
                 {prestamos.map((prestamos,index) => (
                 <tr key={index}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.fecha}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.matricula_numeroempleado}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.nombre_material}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{prestamos.categoria}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.fecha}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -240,33 +277,92 @@ function PantallaPrestamoMaterial(){
                 </tr>
                 ))}
             </tbody>
-        </table>
-        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Registro Prestamo</span>}visible={showDialog}
+        </table> 
+        {/*Desplegable para realizar el prestamo */}
+        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Prestamo</span>}visible={showDialog}
             style={{width:'50vw'}}
             onHide={()=>setShowDialog(false)}>
-                <form>
-                    <div>
-
+                <form onSubmit={(event) => agregar(event)}>
+                    <div className='flex items-start justify-between mb-4'>
+                        <div className='w-1/2'>
+                    <label htmlFor='matricula_numeroempleado' className='text-lg font-semibold mb-2 block'>Matricula / Numero de empleado </label>
+                    <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
+                    className='border border-gray-300 rounded-md p-2 w-full' required/>
                     </div>
-                    
-                </form>
-            </Dialog>
-            {/*
-            <div className='w-full h-full flex items-center justify-center mb-2'>   
-            <div className='bg-stone-200 box-border w-50 p-1 border-1 overflow-auto'>
-            <input id='fecha' type='date' value={fecha_Prestamo} readOnly className='w-1/2 p-1 border-gray-300 rounded-md text-center'/>
-            <input id='hora' type='time' value={hora_Prestamo} readOnly className='w-1/2 p-1 border-gray-300 rounded-md text-center'/>
-            </div>
-            </div>
 
-            <a href='../App.jsx'><button className="bg-yellow-400 text-black font-bold py-2 px-4 rounded mr-10">Volver</button></a>
-            <button className="bg-lime-500 text-black font-bold py-2 px-4 rounded mr-10" onClick={(event) => agregar(event)}>Guardar</button>
-            <button className="bg-rose-600 text-black font-bold py-2 px-4 rounded">Cancelar</button>
-            */}
+                    <div className='w-1/2 ml-4'>
+                    <label htmlFor='ubicacion' className='text-lg font-semibold mb-2 block'>Ubicacion</label>
+                        <select onChange={handleUbicacionChange} className="border border-gray-300 rounded-md p-2 w-full" required>
+                            <option value="">Seleccione una ubicacion</option>
+                            {ubicaciones.map((ubicacion) => (
+                                <option key={ubicacion.id} value={ubicacion.id}>
+                                {ubicacion.nombre}</option>
+                            ))}
+                        </select>
+                     </div>
+                    </div>
+            <h1 className='flex justify-center font-semibold text-xl'>Material</h1>
+            <table className='min-w-full border-collapse'>
+            <thead>
+                <tr>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {materialesDisponibles.map(material => (
+                <tr key={material.id} onClick={() =>handleseleccionMaterial(material)}>    
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{material.nombre_material}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{material.categoria}</td>
+            </tr>
+            ))}
+            </tbody>
+            </table>        
+
+            <div className='flex justify-center mb-4 mt-6'>         
+            <div className='w-1/2 text-center'> 
+                    <label htmlFor='nombreMaterial' className='text-lg font-semibold mb-2 block'>Nombre del material: </label>
+                    <input type='text' id='nombreMaterial' value={nombre_material} 
+                    className='border border-gray-300 rounded-md p-2 w-50' disabled/> 
+            </div>
+            </div>
+        
+
+        <div className='flex justify-center mb-3'>
+            <div className='w-1/2'> 
+                    <label htmlFor='nombreMaterial' className='text-xl font-semibold mb-2 text-center'>Comentarios</label>
+                    <input type='text' id='nombreMaterial' value={comentarios} onChange={handleinputChange} 
+                    className='border border-gray-300 rounded-md p-2 w-full h-32' /> 
+            </div>
         </div>
 
-        
-        
+            <div className='w-full h-full flex items-center justify-center mb-2'>   
+             <div className='p-4 overflow-auto rounded-md'>
+                <div className='flex justify-between'>
+                    <div className='flex flex-col items-center mb-2 w-1/2'>
+                    <label htmlFor='Fecha' className='text-lg font-semibold mb-1'>Fecha</label>      
+                    <input id='fecha' type='date' value={fecha} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
+               </div>
+
+               <div className='flex flex-col items-center mb-2 w-1/2'>
+               <label htmlFor='Hora' className='text-lg font-semibold mb-1'>Hora</label>  
+               <input id='hora' type='time' value={hora} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
+
+               </div>
+              </div>
+             </div>
+            </div>
+
+            {/*Botones del codigo con acciones, mandar a services y limpiar campos*/}
+            <div className='mb-2 flex justify-center space-x-4'>  
+            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded mr-10" onClick={(event) => agregar(event)}>Guardar</button>
+            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded mr-10">Borrar</button>
+            </div>
+            
+            </form>
+            </Dialog>
+        </div>  
+        </div>
     );
 }
 
