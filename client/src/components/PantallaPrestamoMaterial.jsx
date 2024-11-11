@@ -202,19 +202,20 @@ function PantallaPrestamoMaterial(){
     const handleUbicacionChange = async(event) =>{
         const ubicacionId = event.target.value;
         setIdUbicacion(ubicacionId);
+
+        console.log("Ubicación seleccionada:", ubicacionId);
     
         if(ubicacionId){
             try{
-                const response = await fetch(`/materialUbicacion?id_ubicacion=${ubicacionId}`);
-                if(response.ok){
-                    const materiales = await response.json();
-                    setmaterialesDisponibles(materiales);
+                const materiales = await PrestamoService.materialUbicacion(ubicacionId);
+                if(materiales.length>0){
+                console.log("Materiales disponibles:", materiales); 
+                setmaterialesDisponibles(materiales);
                 }else{
-                    console.error("Error en la respuesta:", response.status, response.statusText);
-                    MensajeEr("Error al obtener los materiales de la ubicacion seleccionada");
-                    setmaterialesDisponibles([]);
+                    MensajeEr("No hay materiales disponibles en esta ubicacion");
                 }
             }catch(error){
+                console.error("Error al conectar:", error);
                 MensajeEr("Error al conectar con el servidor");
             }
         }else{

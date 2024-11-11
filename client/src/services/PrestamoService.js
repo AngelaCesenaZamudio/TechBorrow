@@ -29,7 +29,7 @@ const PrestamoService = {
         });
     },
     materialUbicacion: async (UbicacionId) =>{
-        const response = await axios.get('https://localhost:3001/PrestamoRoute/materialUbicacion',{
+        const response = await Axios.get('http://localhost:3001/PrestamoRoute/materialUbicacion',{
             params:{id_ubicacion:UbicacionId}
         });
         return response.data;
