@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mysql = require("mysql");
-{/*Conexion a la Base de datos*/}
+
 
 const BD = mysql.createConnection({
     host:"localhost",
@@ -13,7 +13,7 @@ const BD = mysql.createConnection({
 router.post('/RegistroMaterial', (req,res) => {
     const id_material = req.body.id_material;
     const clave = req.body.clave;
-    const id_ubicacion = req.body.id_ubicacion;
+    const id_ubicacion = parseInt (req.body.id_ubicacion);
     const nombre_material = req.body.nombre_material;
     const numserie = req.body.numserie;
     const id_categoria = req.body.id_categoria;
@@ -23,9 +23,13 @@ router.post('/RegistroMaterial', (req,res) => {
     const descripcion = req.body.descripcion;
     const permiso = req.body.permiso;
     const fechaRegistro = req.body.fechaRegistro;
+
+    if (isNaN(id_ubicacion)) {
+        return res.status(400).send('Error: La categoría seleccionada no es válida.');
+    }
     
    
-        BD.query('INSERT INTO material(id_material, clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        BD.query('INSERT INTO material(id_material, clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
             [id_material, clave, id_ubicacion, nombre_material, numserie,id_categoria, marca, modelo,id_estado,descripcion, permiso,fechaRegistro ], (err, result)=>{
                 if(err){
                     console.log(err);

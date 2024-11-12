@@ -251,10 +251,11 @@ function PantallaMaterialLaboratorio(){
             </tbody>
         </table>
 
-        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Registro Prestamo</span>}visible={showDialog}
+        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Registro Material</span>}visible={showDialog}
             style={{width:'50vw'}}
             onHide={()=>setShowDialog(false)}>
-                 <form action="">
+                 
+            <form action="/RegistroMaterial" method='POST'>
                 <div className=" inline-block  w-1/2 p-4">
                     <label htmlFor="clave" className="block ">Clave</label>
                     <input type="text" name="" id="clave" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400 w-full"  />
@@ -267,7 +268,7 @@ function PantallaMaterialLaboratorio(){
 
                     <label htmlFor="id_estado" className="block">Estado</label>
                     <select id="id_estado" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccione una opción</option>
+                        <option value="0">Seleccione una opción</option>
                         <option value="1">Disponible</option>
                         <option value="2">Prestado</option>
                         <option value="3">Reparacion</option>
@@ -277,7 +278,7 @@ function PantallaMaterialLaboratorio(){
 
                     <label htmlFor="id_categoria" className="block">Categoria</label>
                     <select id="id_categoria" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccione una opción</option>
+                        <option value="0">Seleccione una opción</option>
                         <option value="1">Laptop</option>
                         <option value="2">Mouse</option>
                         <option value="3">Teclado</option>
@@ -299,18 +300,18 @@ function PantallaMaterialLaboratorio(){
 
                     <label htmlFor="permiso" className="block">Permisos</label>
                     <select id="permiso" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccione una opción</option>
-                        <option value="1">Maestros</option>
-                        <option value="2">Alumnos</option>
-                        <option value="3">Ambos</option>
+                        <option value="null">Seleccione una opción</option>
+                        <option value="Maestros">Maestros</option>
+                        <option value="Alumnos">Alumnos</option>
+                        <option value="Ambos">Ambos</option>
                     </select>
 
                     <label htmlFor="id_ubicacion" className="block">Ubicacion</label>
-                    <select id="id_ubicacion" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Seleccione una opción</option>
+                    <select required id="id_ubicacion" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="0">Seleccione una opción</option>
                         <option value="1">Aula</option>
                         <option value="2">Laboratorio</option>
-                        <option value="3">Cubiculo</option>
+                        <option value="3">Cubiculos</option>
                         <option value="4">Almacen</option>
                     </select>
                     <label htmlFor="descripcion" className="block">Descripcion</label>
