@@ -11,7 +11,8 @@ import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
 
 function PantallaPrestamoMaterial(){ 
-    const [id_prestamo,setid_prestamo] = useState(1);
+    const [id_prestamo,setid_prestamo] = useState(0);
+    const [id_material, setid_material] = useState("");
     const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
     const [fecha,setfecha] = useState("");
@@ -114,19 +115,26 @@ function PantallaPrestamoMaterial(){
             return;
         }
         PrestamoService.RegistroPrestamo({
-            id_Prestamo:id_Prestamo,
+            id_prestamo:id_prestamo,
             matricula_claveempleado:matricula_claveempleado,
             nombre_material:nombre_material,
-            estado:estado,
+            estado:"Prestado",
             comentarios:comentarios,
-            fecha_Prestamo:fecha_Prestamo,
-            hora_Prestamo:hora_Prestamo
+            fecha:fecha,
+            hora:hora
         }).then(response=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
-            setid_Prestamo(prevId => prevId +1);
+            setid_prestamo(prevId => prevId +1);
+            PrestamoService.actualizarEstadoMaterial(nombre_material,"Prestado")
+             .then(()=>{
+                console.log("Estado del material actualizado");
+             }).catch(err =>{
+                console.log("Error al actualizar estado del material", err);
+                MensajeEr("Error al actualizar estado del material");
+             })
             }
         }).catch(error=>{
             if(error.response.status === 400){
@@ -202,19 +210,20 @@ function PantallaPrestamoMaterial(){
     const handleUbicacionChange = async(event) =>{
         const ubicacionId = event.target.value;
         setIdUbicacion(ubicacionId);
+
+        console.log("Ubicación seleccionada:", ubicacionId);
     
         if(ubicacionId){
             try{
-                const response = await fetch(`/materialUbicacion?id_ubicacion=${ubicacionId}`);
-                if(response.ok){
-                    const materiales = await response.json();
-                    setmaterialesDisponibles(materiales);
+                const materiales = await PrestamoService.materialUbicacion(ubicacionId);
+                if(materiales.length>0){
+                console.log("Materiales disponibles:", materiales); 
+                setmaterialesDisponibles(materiales);
                 }else{
-                    console.error("Error en la respuesta:", response.status, response.statusText);
-                    MensajeEr("Error al obtener los materiales de la ubicacion seleccionada");
-                    setmaterialesDisponibles([]);
+                    MensajeEr("No hay materiales disponibles en esta ubicacion");
                 }
             }catch(error){
+                console.error("Error al conectar:", error);
                 MensajeEr("Error al conectar con el servidor");
             }
         }else{
@@ -228,6 +237,7 @@ function PantallaPrestamoMaterial(){
 
     const handleseleccionMaterial =(material)=>{
         setnombre_material(material.nombre_material);
+        setid_material(material.id);
     };
     
     return(
@@ -320,21 +330,21 @@ function PantallaPrestamoMaterial(){
             </table>        
 
             <div className='flex justify-center mb-4 mt-6'>         
-            <div className='w-1/2 text-center'> 
+            <div className='flex justify-between w-1/2 gap-4'> 
+                <div className='w-1/1 text-center'>
                     <label htmlFor='nombreMaterial' className='text-lg font-semibold mb-2 block'>Nombre del material: </label>
                     <input type='text' id='nombreMaterial' value={nombre_material} 
-                    className='border border-gray-300 rounded-md p-2 w-50' disabled/> 
+                    className='border border-gray-300 rounded-md p-2 w-full' disabled/> 
             </div>
+    
+            <div className='w-1/2 pl-2'> 
+                    <label htmlFor='comentarios' className='text-xl font-semibold mb-2 text-center'>Comentarios</label>
+                    <input type='text' id='comentarios' value={comentarios} onChange={handleinputChange} 
+                    rows="1"
+                    className='border border-gray-300 rounded-md p-2 w-full h-10e resize-y focus:h-32 transition-all duration-300' /> 
             </div>
-        
-
-        <div className='flex justify-center mb-3'>
-            <div className='w-1/2'> 
-                    <label htmlFor='nombreMaterial' className='text-xl font-semibold mb-2 text-center'>Comentarios</label>
-                    <input type='text' id='nombreMaterial' value={comentarios} onChange={handleinputChange} 
-                    className='border border-gray-300 rounded-md p-2 w-full h-32' /> 
-            </div>
-        </div>
+            </div> 
+            </div> 
 
             <div className='w-full h-full flex items-center justify-center mb-2'>   
              <div className='p-4 overflow-auto rounded-md'>

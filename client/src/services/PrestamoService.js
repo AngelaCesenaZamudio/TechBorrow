@@ -29,11 +29,20 @@ const PrestamoService = {
         });
     },
     materialUbicacion: async (UbicacionId) =>{
-        const response = await axios.get('https://localhost:3001/PrestamoRoute/materialUbicacion',{
+        const response = await Axios.get('http://localhost:3001/PrestamoRoute/materialUbicacion',{
             params:{id_ubicacion:UbicacionId}
         });
         return response.data;
     },
+    actualizarEstadoMaterial: async(id_material,estado)=>{
+        try{
+            const response = await Axios.put(`http://localhost:3000/material/${id_material}`, { estado });
+            return response;  
+        }catch(error){
+            console.error("Error al actualizar el estado del material: ",error);
+            throw error;
+        }
+    }
 };
 
 export default PrestamoService;
