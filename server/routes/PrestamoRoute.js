@@ -62,6 +62,19 @@ router.post('/RegistroPrestamo', (req,res) => {
         const {id_material} = req.params;
         const estado = "Prestado";
 
+        const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
+        BD.query(queryMaterial, [nombre_material], (err,results) =>{
+        if(err){
+            console.error("Error al obtener el id_material",err);
+            return res.status(500).json({message: "Error al obtener el id_material", err: err});
+        }
+
+        if(results.length===0){
+            return res.status(404).json({message: "Material no encontrado"});
+        }
+
+        const id_material = results[0].id_material;
+
         //Buscamos en la tabla estado para corroborar que existe este estado y que se guarde el id
         const queryEstado = 'SELECT id_estado FROM estado WHERE estado =?';
         BD.query(queryEstado, [estado], (err,results)=>{
@@ -89,7 +102,8 @@ router.post('/RegistroPrestamo', (req,res) => {
             res.status(200).json({message: "Estado del material actualizado"});
         });
     });
-    }
+  });
+}
 
     //Ruta utilizada para que se modifique el estado del material luego del prestamo
     router.put('/material/:id_material', actualizarEstadoMaterial);
