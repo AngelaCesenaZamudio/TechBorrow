@@ -34,11 +34,15 @@ const PrestamoService = {
         });
         return response.data;
     },
-    /*actualizarEstadoMaterial = async(id_material,estado)=>{
+    actualizarEstadoMaterial: async(id_material,estado)=>{
         try{
-            const response = await Axios.put('http://localhost:3001/PrestamoRoute/actualizarEstadoMaterial')
+            const response = await Axios.put(`http://localhost:3000/material/${id_material}`, { estado });
+            return response;  
+        }catch(error){
+            console.error("Error al actualizar el estado del material: ",error);
+            throw error;
         }
-    }*/
+    }
 };
 
 export default PrestamoService;

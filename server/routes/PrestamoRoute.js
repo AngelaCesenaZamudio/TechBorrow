@@ -15,40 +15,86 @@ router.post('/RegistroPrestamo', (req,res) => {
     const nombre_material = req.body.nombre_material;
     const estado = req.body.estado;
     const comentarios = req.body.comentarios;
-    const fecha_Prestamo = req.body.fecha_Prestamo;
-    const hora_Prestamo = req.body.hora_Prestamo;
+    const fecha = req.body.fecha;
+    const hora = req.body.hora;
 
-    //Validar el solicitante
-
-    //Si el prestamo ya existe por id
-    BD.query('SELECT * FROM prestamo WHERE id_Prestamo = ?', [id_Prestamo], (err,results)=>{
+    const querySolicitante = 'SELECT id_solicitante FROM solicitante WHERE matricula_claveempleado =?';
+    BD.query(querySolicitante, [matricula_claveempleado], (err,results) =>{
         if(err){
-            console.log(err);
-            return res.status(500).send("Error");
+            console.error("Error al obtener el id_solicitante",err);
+            return res.status(500).json({message: "Error al obtener el id_solicitante", err: err});
         }
 
-        //Si el material ya esta en un prestamo
-        BD.query('SELECT * FROM prestamo WHERE nombre_material = ?',[nombre_material], (err, results)=>{
+        if(results.length===0){
+            return res.status(404).json({message: "Solicitante no encontrado"});
+        }
+
+        const id_solicitante = results[0].id_solicitante;
+
+    //Metodo que utilizamos para tomar el id del material y mandarlo al prestamo    
+    const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
+    BD.query(queryMaterial, [nombre_material], (err,results) =>{
+        if(err){
+            console.error("Error al obtener el id_material",err);
+            return res.status(500).json({message: "Error al obtener el id_material", err: err});
+        }
+
+        if(results.length===0){
+            return res.status(404).json({message: "Material no encontrado"});
+        }
+
+        const id_material = results[0].id_material;
+
+        //Metodo para hacer la insercion del prestamo a la tabla
+        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecha, hora) VALUES (?,?,?,?,?,?)';
+        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecha, hora], (err, results)=>{
             if(err){
-                console.log(err);
-                return res.status(500).send("Error");
+                console.error("Error al registrar el prestamo: ",err);
+                return res.status(500).json({message: "Error al registrar el prestamo", err: err});
+            }
+            res.status(200).json({message: "Prestamo registrado con exito"});
+        })
+    })
+    })
+
+    //Funcion que utilizaremos para actualizar estado del material en prestamo
+    const actualizarEstadoMaterial = (req,res) =>{
+        const {id_material} = req.params;
+        const estado = "Prestado";
+
+        //Buscamos en la tabla estado para corroborar que existe este estado y que se guarde el id
+        const queryEstado = 'SELECT id_estado FROM estado WHERE estado =?';
+        BD.query(queryEstado, [estado], (err,results)=>{
+            if(err){
+                console.error("Error al obtener el id_estado:",err);
+                return res.status(500).json({message: "Error al obtener el id_estado",err:err});
             }
 
-            if(results.length>0){
-                return res.status(401).send("El material ya esta prestado")
+            if(results.length===0){
+                return res.status(404).json({message: "Estado no encontrado"});
             }
 
-        BD.query('INSERT INTO prestamo(id_Prestamo, matricula_claveempleado_solicitante, nombre_material,categoria_material, fecha_Prestamo, hora_Prestamo) VALUES (?,?,?,?,?,?)',
-            [id_Prestamo, matricula_claveempleado_solicitante, nombre_material, categoria_material, fecha_Prestamo, hora_Prestamo], (err, result)=>{
-                if(err){
-                    console.log(err);
-                    return res.status(500).send("Error")
-                }
-                res.status(200).send("Prestamo registrado con exito");
-            });    
+            const id_estado = results[0].id_estado;
+
+        //Buscamos el material para actulizar su estado    
+        const queryMaterial = 'UPDATE material SET id_estado = ? WHERE id_material =?';
+        BD.query(queryMaterial, [id_estado, id_material], (err,results) =>{
+            if(err){
+                console.error("Error al actualizar el estado del material:",err);
+                return res.status(500).json({message: "Error al actualizar el estado del material", err: err});
+            }
+            if(results.affectedRows===0){
+                return res.status(404).json({message: "Material no encontrado"});
+            }
+            res.status(200).json({message: "Estado del material actualizado"});
         });
     });
+    }
+
+    //Ruta utilizada para que se modifique el estado del material luego del prestamo
+    router.put('/material/:id_material', actualizarEstadoMaterial);
 });
+
 
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerPrestamos', (req, res) => {
@@ -197,5 +243,6 @@ router.get('/materialUbicacion', (req,res) =>{
         })
     });
 })
+
 
 module.exports = router;

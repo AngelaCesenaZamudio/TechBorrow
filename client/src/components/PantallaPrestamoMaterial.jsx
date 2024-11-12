@@ -11,7 +11,7 @@ import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
 
 function PantallaPrestamoMaterial(){ 
-    const [id_prestamo,setid_prestamo] = useState(1);
+    const [id_prestamo,setid_prestamo] = useState(0);
     const [id_material, setid_material] = useState("");
     const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
@@ -115,20 +115,20 @@ function PantallaPrestamoMaterial(){
             return;
         }
         PrestamoService.RegistroPrestamo({
-            id_Prestamo:id_Prestamo,
+            id_prestamo:id_prestamo,
             matricula_claveempleado:matricula_claveempleado,
             nombre_material:nombre_material,
             estado:"Prestado",
             comentarios:comentarios,
-            fecha_Prestamo:fecha_Prestamo,
-            hora_Prestamo:hora_Prestamo
+            fecha:fecha,
+            hora:hora
         }).then(response=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
-            setid_Prestamo(prevId => prevId +1);
-            PrestamoService.actualizarEstadoMaterial(id_material,"Prestado")
+            setid_prestamo(prevId => prevId +1);
+            PrestamoService.actualizarEstadoMaterial(nombre_material,"Prestado")
              .then(()=>{
                 console.log("Estado del material actualizado");
              }).catch(err =>{
