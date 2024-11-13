@@ -4,6 +4,7 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Prestamo.css';
 import { Dialog } from 'primereact/dialog';
+import PrestamoService from '../services/PrestamoService';
 
 
 
@@ -127,5 +128,6 @@ function PantallaMaterialLaboratorio() {
         </div>
     );
 }
+
 
 export default PantallaMaterialLaboratorio;

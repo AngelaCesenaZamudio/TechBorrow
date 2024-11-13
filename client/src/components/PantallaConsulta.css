@@ -1,0 +1,17 @@
+.pantalla-consulta-material {
+    background-color: #D7D1D1;
+    color: #348a2d;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  
+  .btn_consulta {
+    background-color: #DCC819;
+    color: #FFFFFF;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
