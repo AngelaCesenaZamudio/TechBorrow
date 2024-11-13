@@ -40,14 +40,13 @@ function Header(){
                                 
                                 {/* Información del usuario */}
                                 <div>
-                                    <div><strong>Meliza Diaz Nava</strong></div>
+                                    <div><strong>Alejandro Abimael Baza</strong></div>
                                     <div><strong>Matrícula:</strong> 1173346</div>
                                     <div><strong>Permiso:</strong> Administrador</div>
                                 </div>
                             </div>
 
                             {/* Otras opciones */}
-                            <DropdownItem className="mt-2 bg-white text-dark">Otra opción?</DropdownItem>
                             <DropdownItem divider />
                             
                             {/* Cerrar sesión */}

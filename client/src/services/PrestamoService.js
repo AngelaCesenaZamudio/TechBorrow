@@ -7,10 +7,10 @@ const PrestamoService = {
     obtenerPrestamos: () =>{
         return Axios.get("http://localhost:3001/PrestamoRoute/obtenerPrestamos");
     },
-    validarMatricula: (matricula) =>{
-        return Axios.get('http://localhost:3001/PrestamoRoute/validarMatricula',{
+    validarMatricula_Claveempleado: (matricula_claveempleado) =>{
+        return Axios.get('http://localhost:3001/PrestamoRoute/validarMatricula_Claveempleado',{
             params : {
-                matricula : matricula
+                matricula_claveempleado : matricula_claveempleado
             }
     });
     },
@@ -28,12 +28,17 @@ const PrestamoService = {
             }
         });
     },
-    obtenerMaterialPorUbicacion: async (UbicacionId) =>{
-        const response = await axios.get('https://localhost:3001/PrestamoRoute/materialUbicacion',{
-            params:{id_material:idMaterial}
+    materialUbicacion: async (UbicacionId) =>{
+        const response = await Axios.get('http://localhost:3001/PrestamoRoute/materialUbicacion',{
+            params:{id_ubicacion:UbicacionId}
         });
         return response.data;
     },
+    /*actualizarEstadoMaterial = async(id_material,estado)=>{
+        try{
+            const response = await Axios.put('http://localhost:3001/PrestamoRoute/actualizarEstadoMaterial')
+        }
+    }*/
 };
 
 export default PrestamoService;

@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const ModificacionMaterialServices = {
+const ModificacionMaterialService = {
     // Método para registrar un nuevo material
     registrarMaterial: (datos) => {
         return Axios.post("http://localhost:3001/ModificarMaterialRoute/registrarMaterial", datos);
@@ -35,4 +35,4 @@ const ModificacionMaterialServices = {
     }
 };
 
-export default ModificacionMaterialServices;
+export default ModificacionMaterialService;
