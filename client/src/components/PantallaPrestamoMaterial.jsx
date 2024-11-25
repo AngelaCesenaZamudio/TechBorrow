@@ -15,6 +15,8 @@ function PantallaPrestamoMaterial(){
     const [id_material, setid_material] = useState("");
     const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
+    const [nombre_materialValido, setnombre_materialValido] = useState("");
+    const [nombre_solicitante, setnombre_solicitante] = useState("");
     const [fecha,setfecha] = useState("");
     const [hora,sethora] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
@@ -24,19 +26,9 @@ function PantallaPrestamoMaterial(){
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
-    const [materialesDisponibles, setmaterialesDisponibles] = useState([]);
-    const [IdUbicacion, setIdUbicacion] = useState("");
     const [comentarios, setcomentarios] = useState("");
 
     const toast = useRef(null);
-
-    //Ubicaciones por mostrar
-    const [ubicaciones] = useState ([
-        {id: 1, nombre:"Laboratorio"},
-        {id: 2, nombre: "Aula"},
-        {id: 3, nombre: "Cubiculos"},
-        {id: 4, nombre: "Almacen"},
-    ])
 
     //Mensaje de confirmacion de exito
     const MensajeEx = (mensaje) =>{
@@ -72,13 +64,14 @@ function PantallaPrestamoMaterial(){
     };
 
     //Metodo que valida luego de comprobar que no hay letras ni simbolos
-    const debounceValidaMatricula = debounce(async(value) => {
+    const debounceValidaMatricula = debounce(async() => {
         if(value.length>=7){
         try{
-            const response = await PrestamoService.validarMatricula_Claveempleado(value);
+            const response = await PrestamoService.validarMatricula_Claveempleado(matricula_claveempleado);
             if(response.status===200){
                 setmatriculaValida(true);
-                MensajeEx("Solicitante valido");
+                setmatricula_claveempleado(matricula_claveempleado);
+                setnombre_solicitante(response.data.nombre_solicitante);
                 seterrorMatricula('');
                 setisFieldDisabled(false);
             }
@@ -106,6 +99,37 @@ function PantallaPrestamoMaterial(){
         }
     }
     },500);
+    
+    const handleMaterialChange = (event) =>{
+        const value = event.target.value;
+        setnombre_material(value);
+
+        if(value.trim() !== "" && value.length>=5){
+            debounceMaterial(value);
+        }
+    };
+
+    //Validar que el material este disponible
+    const debounceMaterial = debounce(async (value) =>{
+        try{
+            const response = await PrestamoService.estadoMaterial(value);
+            if(response.status===200){
+                setnombre_materialValido(true);
+                setnombre_material(value);
+            }
+        }catch(error){
+            if(error.response){
+                //Material no registrado
+                if(error.response.status===404){
+                MensajeEr("Material no registrado");
+            }else{
+                MensajeEr("Error al validar");
+            }
+        }else{
+            MensajeEr("Error de conexion");
+        }
+        }
+    },500); 
 
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
@@ -114,6 +138,7 @@ function PantallaPrestamoMaterial(){
             MensajeAd("Hay campos vacios");
             return;
         }
+
         PrestamoService.RegistroPrestamo({
             id_prestamo:id_prestamo,
             matricula_claveempleado:matricula_claveempleado,
@@ -206,7 +231,7 @@ function PantallaPrestamoMaterial(){
         fetchPrestamos();
     }, []);
 
-    //Funcion para mandar material disponible
+    /*Funcion para mandar material disponible
     const handleUbicacionChange = async(event) =>{
         const ubicacionId = event.target.value;
         setIdUbicacion(ubicacionId);
@@ -229,17 +254,12 @@ function PantallaPrestamoMaterial(){
         }else{
             setmaterialesDisponibles([]);
             }
-        }
+        }*/
 
     const handleinputChange =(e) =>{
             setcomentarios(e.target.value);
     };
 
-    const handleseleccionMaterial =(material)=>{
-        setnombre_material(material.nombre_material);
-        setid_material(material.id);
-    };
-    
     return(
         <div>
         <Toast ref={toast} />
@@ -290,85 +310,63 @@ function PantallaPrestamoMaterial(){
         </table> 
         {/*Desplegable para realizar el prestamo */}
         <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Prestamo</span>}visible={showDialog}
-            style={{width:'50vw'}}
+            style={{width:'40vw'}}  
             onHide={()=>setShowDialog(false)}>
                 <form onSubmit={(event) => agregar(event)}>
-                    <div className='flex items-start justify-between mb-4'>
-                        <div className='w-1/2'>
-                    <label htmlFor='matricula_numeroempleado' className='text-lg font-semibold mb-2 block'>Matricula / Numero de empleado </label>
+                <h1 className='flex justify-center font-bold text-xl mb-1'>Datos del solicitante</h1>  
+                    <div className='flex justify-between mb-3 border'>
+                    <div className='w-1/2 mb-3 px-6'>
+                    <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block whitespace-nowrap overflow-hidden text-ellipsis'>
+                    Matricula/Numero de empleado </label>
                     <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
-                    className='border border-gray-300 rounded-md p-2 w-full' required/>
+                    className='border border-gray-300 rounded-md p-2 w-70' required/>
                     </div>
 
-                    <div className='w-1/2 ml-4'>
-                    <label htmlFor='ubicacion' className='text-lg font-semibold mb-2 block'>Ubicacion</label>
-                        <select onChange={handleUbicacionChange} className="border border-gray-300 rounded-md p-2 w-full" required>
-                            <option value="">Seleccione una ubicacion</option>
-                            {ubicaciones.map((ubicacion) => (
-                                <option key={ubicacion.id} value={ubicacion.id}>
-                                {ubicacion.nombre}</option>
-                            ))}
-                        </select>
+                    <div className='w-1/2 mb-3 px-6'>
+                    <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block'>Nombre del solicitante </label>
+                    <input type='text' id='nombre_solicitante' className='border border-gray-300 rounded-md p-2 w-70 text-center' value={nombre_solicitante} 
+                    onChange={(e) => setnombre_solicitante(e.target.value)} disabled/>
                      </div>
                     </div>
-            <h1 className='flex justify-center font-semibold text-xl'>Material</h1>
-            <table className='min-w-full border-collapse'>
-            <thead>
-                <tr>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</th> 
-                </tr>
-            </thead>
-            <tbody>
-                {materialesDisponibles.map(material => (
-                <tr key={material.id} onClick={() =>handleseleccionMaterial(material)}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{material.nombre_material}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>{material.categoria}</td>
-            </tr>
-            ))}
-            </tbody>
-            </table>        
 
-            <div className='flex justify-center mb-4 mt-6'>         
-            <div className='flex justify-between w-1/2 gap-4'> 
-                <div className='w-1/1 text-center'>
-                    <label htmlFor='nombreMaterial' className='text-lg font-semibold mb-2 block'>Nombre del material: </label>
-                    <input type='text' id='nombreMaterial' value={nombre_material} 
-                    className='border border-gray-300 rounded-md p-2 w-full' disabled/> 
+            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos del material</h1>      
+            <div className='flex justify-center mb-3 border '> 
+                <div className='mb-3 text-center'>
+                    <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
+                    <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
+                    className='border border-gray-300 rounded-md p-2 w-70 text-center' required/> 
+            </div>
             </div>
     
-            <div className='w-1/2 pl-2'> 
-                    <label htmlFor='comentarios' className='text-xl font-semibold mb-2 text-center'>Comentarios</label>
+            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de prestamo</h1>  
+            <div className='flex flex-col items-center border'> 
+                <div className='w-3/4 mb-2'>
+                    <label htmlFor='comentarios' className='text-l font-semibold mb-2 block'>Comentarios</label>
                     <input type='text' id='comentarios' value={comentarios} onChange={handleinputChange} 
                     rows="1"
                     className='border border-gray-300 rounded-md p-2 w-full h-10e resize-y focus:h-32 transition-all duration-300' /> 
             </div>
-            </div> 
-            </div> 
 
-            <div className='w-full h-full flex items-center justify-center mb-2'>   
-             <div className='p-4 overflow-auto rounded-md'>
-                <div className='flex justify-between'>
-                    <div className='flex flex-col items-center mb-2 w-1/2'>
-                    <label htmlFor='Fecha' className='text-lg font-semibold mb-1'>Fecha</label>      
+            <div className='w-full h-full flex justify-center gap-8'>   
+             <div className='flex flex-col items-center'>
+                    <label htmlFor='Fecha' className='text-l font-semibold mb-1'>Fecha</label>      
                     <input id='fecha' type='date' value={fecha} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
-               </div>
+             </div>
 
-               <div className='flex flex-col items-center mb-2 w-1/2'>
-               <label htmlFor='Hora' className='text-lg font-semibold mb-1'>Hora</label>  
+               <div className='flex flex-col items-center'>
+               <label htmlFor='Hora' className='text-l font-semibold mb-1'>Hora</label>  
                <input id='hora' type='time' value={hora} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
 
                </div>
               </div>
              </div>
-            </div>
 
             {/*Botones del codigo con acciones, mandar a services y limpiar campos*/}
-            <div className='mb-2 flex justify-center space-x-4'>  
-            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded mr-10" onClick={(event) => agregar(event)}>Guardar</button>
-            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded mr-10">Borrar</button>
-            </div>
-            
+            <div className='flex justify-center mt-6 space-x-4'>  
+            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}>Guardar</button>
+            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded">Borrar</button>
+    
+                </div>        
             </form>
             </Dialog>
         </div>  

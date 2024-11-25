@@ -133,7 +133,7 @@ router.get('/obtenerPrestamos', (req, res) => {
 router.get('/validarMatricula_Claveempleado', (req, res) => {
     const matricula = req.query.matricula_claveempleado;
 
-    BD.query('SELECT id_solicitante, activo, adeudos FROM solicitante WHERE matricula_claveempleado =?', 
+    BD.query('SELECT id_solicitante, activo, adeudos, nombre_solicitante FROM solicitante WHERE matricula_claveempleado =?', 
         [matricula], (err, results) => {
             if(err){
                 console.log(err);
@@ -173,48 +173,43 @@ router.get('/validarMatricula_Claveempleado', (req, res) => {
                 }
 
                 if(prestamoFinalizado.length>0){
-                    return res.status(200).send('Solicitante valido, puede hacer otro prestamo');
+                    return res.status(200).send({mensaje:'Solicitante valido, puede hacer un prestamo'}) 
+                        //nombre_solicitante:solicitante.nombre_solicitante});
                 }  
 
-                return res.status(200).send('Solicitante valido, puede hacer un prestamo');
+                return res.status(200).send({mensaje:'Solicitante valido, puede hacer un prestamo'}) 
+                //nombre_solicitante:solicitante.nombre_solicitante});
             });
         });
     });
 });
 
-router.get('/validarMaterial', (req, res) => {
-    const material = req.query.material;
-    BD.query('SELECT * FROM material WHERE nombre_Material=?', 
-        [material], (err, results) => {
-            if(err){
-                console.log(err);
-                return res.status(500).send('Error');
-            }
-
-            if(results.length>0){
-                console.log(material);
-                res.status(200).send('Material habilitado');
-            }else{
-                res.status(400).send('Material no valido');
-            }
-    });
-});
-
 router.get('/estadoMaterial', (req, res) => {
     const material = req.query.material;
-    BD.query('SELECT estado FROM material WHERE nombre_material = ?', 
-        [material], (err, results) => {
+    console.log("",material);
+
+    const query ='SELECT e.estado FROM material m '+
+        'JOIN estado e ON m.id_estado = e.id_estado '+
+        'WHERE m.nombre_material = ?';
+        
+        BD.query(query, [material], (err, results) => {
             if(err){
                 console.log(err);
-                return res.status(500).send('Error al obtener el material.');
+                return res.status(500).json('Error al obtener el material.');
             }
 
             if(results.length>0){
                 const estado = results[0].estado;
-                res.status(200).json({estado : estado});
-            }else{
-                res.status(404).send('Material no valid');
+                console.log("",estado);
+
+                if(estado==='Disponible'){
+                return res.status(200).json({mensaje: 'El material esta disponible'});
+                }else if(estado==='Prestado'){
+                    return res.status(200).json({mensaje: 'El material no esta disponible'});
+                }
             }
+            
+        return res.status(404).json('Material no valido');
     });
 });
 

@@ -14,15 +14,8 @@ const PrestamoService = {
             }
     });
     },
-    validarMaterial: (material) =>{
-        return Axios.get('http://localhost:3001/PrestamoRoute/validarMaterial',{
-            params : {
-                material : material
-            }
-    });
-    },
     estadoMaterial: (material) => {
-        return Axios.get('http://localhost:3001/PrestamoRoute/EstadoMaterial',{
+        return Axios.get('http://localhost:3001/PrestamoRoute/estadoMaterial',{
             params : {
                 material : material
             }
