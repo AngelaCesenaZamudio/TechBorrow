@@ -262,10 +262,22 @@ function PantallaPrestamoMaterial(){
         setnombre_solicitante('');
         setnombre_material('');
         setcomentarios('');
-        setfecha('');
-        sethora('');
         setmatriculaValida(false);
         setisFieldDisabled(true);
+    }
+
+    //Funcion para acomodar la fecha y hora en una sola variable y mostrarla
+    const combinarFechaHora = (fecha, hora) =>{
+        const combinada = `${fecha.split('T')[0]}T${hora}`;
+        const fechaHora = new Date(combinada);
+
+        const opcionFecha = {year: 'numeric', month: '2-digit', day: '2-digit'};
+        const fechaFormateada = fechaHora.toLocaleDateString('es-MX',opcionFecha);
+        
+        const opcionHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
+        const horaFormateada = fechaHora.toLocaleTimeString('es-MX',opcionHora);
+
+        return `${fechaFormateada} ${horaFormateada}`;
     }
 
     return(
@@ -291,7 +303,9 @@ function PantallaPrestamoMaterial(){
         <table className='min-w-full border-collapse'>
             <thead>
                 <tr>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Fecha de registro</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de registro</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de vencimiento</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de devolución</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoría</th> 
@@ -300,7 +314,9 @@ function PantallaPrestamoMaterial(){
             <tbody>
                 {prestamos.map((prestamos,index) => (
                 <tr key={index}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.fecha}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.fechavencimiento}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.comentarios}</td> {/*esto se obtiene de devolucion*/}
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>

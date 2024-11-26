@@ -120,7 +120,7 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
 
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerPrestamos', (req, res) => {
-    const query ='SELECT p.fecha,'+ 
+    const query ='SELECT p.fecha, p.hora, '+ 
     'm.nombre_material, s.matricula_claveempleado, c.categoria '+
     'FROM prestamo AS p'+ 
     ' JOIN material AS m ON p.id_material = m.id_material'+
