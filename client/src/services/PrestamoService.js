@@ -27,10 +27,9 @@ const PrestamoService = {
         });
         return response.data;
     },
-    actualizarEstadoMaterial: async(id_material,estado)=>{
+    actualizarEstadoMaterial: (nombre_material)=>{
         try{
-            const response = await Axios.put(`http://localhost:3000/material/${id_material}`, { estado });
-            return response;  
+            return Axios.put(`http://localhost:3001/PrestamoRoute/actualizarEstadoMaterial`, {nombre_material}); 
         }catch(error){
             console.error("Error al actualizar el estado del material: ",error);
             throw error;

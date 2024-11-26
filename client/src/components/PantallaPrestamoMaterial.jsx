@@ -64,7 +64,7 @@ function PantallaPrestamoMaterial(){
     };
 
     //Metodo que valida luego de comprobar que no hay letras ni simbolos
-    const debounceValidaMatricula = debounce(async() => {
+    const debounceValidaMatricula = debounce(async(value) => {
         if(value.length>=7){
         try{
             const response = await PrestamoService.validarMatricula_Claveempleado(matricula_claveempleado);
@@ -110,12 +110,17 @@ function PantallaPrestamoMaterial(){
     };
 
     //Validar que el material este disponible
-    const debounceMaterial = debounce(async (value) =>{
+    const debounceMaterial = async (value) =>{
         try{
             const response = await PrestamoService.estadoMaterial(value);
-            if(response.status===200){
+            console.log("Servidor: ",response);
+            console.log("Recibido: ",response.data.estado);
+            if(response.status===200 && response.data.mensaje ==="El material esta disponible"){
                 setnombre_materialValido(true);
+                MensajeEx("El material esta disponible");
                 setnombre_material(value);
+            }else{
+                MensajeAd("El material no esta disponible");
             }
         }catch(error){
             if(error.response){
@@ -129,7 +134,7 @@ function PantallaPrestamoMaterial(){
             MensajeEr("Error de conexion");
         }
         }
-    },500); 
+    }; 
 
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
@@ -147,20 +152,22 @@ function PantallaPrestamoMaterial(){
             comentarios:comentarios,
             fecha:fecha,
             hora:hora
-        }).then(response=>{
+        }).then(async (response)=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
             setid_prestamo(prevId => prevId +1);
-            PrestamoService.actualizarEstadoMaterial(nombre_material,"Prestado")
-             .then(()=>{
-                console.log("Estado del material actualizado");
-             }).catch(err =>{
-                console.log("Error al actualizar estado del material", err);
-                MensajeEr("Error al actualizar estado del material");
-             })
-            }
+
+            PrestamoService.actualizarEstadoMaterial(nombre_material)
+            .then(response =>{
+                console.log("Respuesta de actualizar: ",response.data);
+            })
+            .catch(error =>{
+                console.error("Error al actualizar: ",error);
+            })
+        }
+            
         }).catch(error=>{
             if(error.response.status === 400){
                 MensajeAd("Material prestado!");
@@ -265,7 +272,7 @@ function PantallaPrestamoMaterial(){
         <Toast ref={toast} />
         <div className='bg-white text-xl font-bold max-w-7xl mx-auto p-4'>
         <div className='flex items-center justify-between mb-4'>
-        <h1 className='flex-none mb-4'>Prestamos</h1>
+        <h1 className='flex-none mb-4'>Préstamos</h1>
 
         <div className='flex items-center flex-grow justify-center mb-2'>
         <div className='relative flex-grow max-w-xl'> 
@@ -276,7 +283,7 @@ function PantallaPrestamoMaterial(){
         </div>
         </div>
         <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4'
-        onClick={()=> setShowDialog(true)}>Registrar Prestamo</button>
+        onClick={()=> setShowDialog(true)}>Registrar Préstamo</button>
         </div>
         <hr className='my-4 border-gray-900'/>
 
@@ -284,9 +291,9 @@ function PantallaPrestamoMaterial(){
             <thead>
                 <tr>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Fecha de registro</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matricula/NumeroEmpleado</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</th> 
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoría</th> 
                 </tr>
             </thead>
             <tbody>
@@ -309,7 +316,7 @@ function PantallaPrestamoMaterial(){
             </tbody>
         </table> 
         {/*Desplegable para realizar el prestamo */}
-        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Prestamo</span>}visible={showDialog}
+        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Préstamo</span>}visible={showDialog}
             style={{width:'40vw'}}  
             onHide={()=>setShowDialog(false)}>
                 <form onSubmit={(event) => agregar(event)}>
@@ -317,7 +324,7 @@ function PantallaPrestamoMaterial(){
                     <div className='flex justify-between mb-3 border'>
                     <div className='w-1/2 mb-3 px-6'>
                     <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block whitespace-nowrap overflow-hidden text-ellipsis'>
-                    Matricula/Numero de empleado </label>
+                    Matrícula/Número de empleado </label>
                     <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
                     className='border border-gray-300 rounded-md p-2 w-70' required/>
                     </div>
@@ -338,7 +345,7 @@ function PantallaPrestamoMaterial(){
             </div>
             </div>
     
-            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de prestamo</h1>  
+            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de préstamo</h1>  
             <div className='flex flex-col items-center border'> 
                 <div className='w-3/4 mb-2'>
                     <label htmlFor='comentarios' className='text-l font-semibold mb-2 block'>Comentarios</label>
