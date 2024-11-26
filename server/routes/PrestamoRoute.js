@@ -9,6 +9,7 @@ const BD = mysql.createConnection({
     database:"techborrow"
 });
 
+//Registrar el prestamo por primera vez
 router.post('/RegistroPrestamo', (req,res) => {
     const id_Prestamo = req.body.id_Prestamo;
     const matricula_claveempleado = req.body.matricula_claveempleado;
@@ -64,7 +65,6 @@ router.post('/RegistroPrestamo', (req,res) => {
 router.put('/actualizarEstadoMaterial', async(req,res) =>{
     console.log("Se llamo el actualizar estado");
         const {nombre_material} = req.body;
-        console.log("RECIBIDO EN EL SERVER: ",nombre_material);
         const estado = "Prestado";
 
         const queryMaterial = 'SELECT id_material FROM material '+ 
@@ -140,8 +140,9 @@ router.get('/obtenerPrestamos', (req, res) => {
 //Metodo para validar la matricula
 router.get('/validarMatricula_Claveempleado', (req, res) => {
     const matricula = req.query.matricula_claveempleado;
+    console.log("SERVER R: ",matricula);
 
-    BD.query('SELECT id_solicitante, activo, adeudos, nombre_solicitante FROM solicitante WHERE matricula_claveempleado =?', 
+    BD.query('SELECT id_solicitante, activo, adeudos, nombre FROM solicitante WHERE matricula_claveempleado =?', 
         [matricula], (err, results) => {
             if(err){
                 console.log(err);
@@ -181,12 +182,11 @@ router.get('/validarMatricula_Claveempleado', (req, res) => {
                 }
 
                 if(prestamoFinalizado.length>0){
-                    return res.status(200).send({mensaje:'Solicitante valido, puede hacer un prestamo'}) 
-                        //nombre_solicitante:solicitante.nombre_solicitante});
+                    return res.status(200).send({mensaje:'Solicitante valido', nombre: solicitante.nombre}); 
+
                 }  
 
-                return res.status(200).send({mensaje:'Solicitante valido, puede hacer un prestamo'}) 
-                //nombre_solicitante:solicitante.nombre_solicitante});
+                return res.status(200).send({mensaje:'Solicitante valido', nombre: solicitante.nombre}); 
             });
         });
     });

@@ -67,15 +67,19 @@ function PantallaPrestamoMaterial(){
     const debounceValidaMatricula = debounce(async(value) => {
         if(value.length>=7){
         try{
-            const response = await PrestamoService.validarMatricula_Claveempleado(matricula_claveempleado);
+            const response = await PrestamoService.validarMatricula_Claveempleado(value);
+            console.log("Despues de la consulta: ",response);
             if(response.status===200){
                 setmatriculaValida(true);
-                setmatricula_claveempleado(matricula_claveempleado);
-                setnombre_solicitante(response.data.nombre_solicitante);
+                setmatricula_claveempleado(value);
+                setnombre_solicitante(response.data.nombre);
                 seterrorMatricula('');
                 setisFieldDisabled(false);
+                console.log("estado matricula: ",matriculaValida);
+                console.log("Mensaje db: ",response.data.mensaje);
             }
         }catch(error){
+            console.log("Error en el client: ",error);
             if(error.response){
                 //Solicitante no registrado
                 if(error.response.status===404){
@@ -99,6 +103,15 @@ function PantallaPrestamoMaterial(){
         }
     }
     },500);
+
+    //Funcion para que actualice la matricula
+    useEffect(()=>{
+        if(matriculaValida){
+            console.log("Estado despues de actualizar: ",matriculaValida);
+            console.log('solicitante: ',nombre_solicitante);
+            MensajeEx("Solicitante valido");    
+        }
+    }, [matriculaValida, nombre_solicitante]);
     
     const handleMaterialChange = (event) =>{
         const value = event.target.value;
@@ -155,13 +168,14 @@ function PantallaPrestamoMaterial(){
         }).then(async (response)=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
+            limpiarCampos();
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
             setid_prestamo(prevId => prevId +1);
 
             PrestamoService.actualizarEstadoMaterial(nombre_material)
             .then(response =>{
-                console.log("Respuesta de actualizar: ",response.data);
+                MensajeEx("Estado de material actualizado");
             })
             .catch(error =>{
                 console.error("Error al actualizar: ",error);
@@ -204,7 +218,6 @@ function PantallaPrestamoMaterial(){
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
         console.log(fecha_Prestamo)
     }
 
@@ -238,34 +251,22 @@ function PantallaPrestamoMaterial(){
         fetchPrestamos();
     }, []);
 
-    /*Funcion para mandar material disponible
-    const handleUbicacionChange = async(event) =>{
-        const ubicacionId = event.target.value;
-        setIdUbicacion(ubicacionId);
-
-        console.log("Ubicación seleccionada:", ubicacionId);
-    
-        if(ubicacionId){
-            try{
-                const materiales = await PrestamoService.materialUbicacion(ubicacionId);
-                if(materiales.length>0){
-                console.log("Materiales disponibles:", materiales); 
-                setmaterialesDisponibles(materiales);
-                }else{
-                    MensajeEr("No hay materiales disponibles en esta ubicacion");
-                }
-            }catch(error){
-                console.error("Error al conectar:", error);
-                MensajeEr("Error al conectar con el servidor");
-            }
-        }else{
-            setmaterialesDisponibles([]);
-            }
-        }*/
-
+    //Funcion para escribir en tiempo real en los comentarisos
     const handleinputChange =(e) =>{
             setcomentarios(e.target.value);
     };
+
+    //Funcion para limpiar campos
+    const limpiarCampos=()=>{
+        setmatricula_claveempleado('');
+        setnombre_solicitante('');
+        setnombre_material('');
+        setcomentarios('');
+        setfecha('');
+        sethora('');
+        setmatriculaValida(false);
+        setisFieldDisabled(true);
+    }
 
     return(
         <div>
@@ -371,7 +372,7 @@ function PantallaPrestamoMaterial(){
             {/*Botones del codigo con acciones, mandar a services y limpiar campos*/}
             <div className='flex justify-center mt-6 space-x-4'>  
             <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}>Guardar</button>
-            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded">Borrar</button>
+            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}>Borrar</button>
     
                 </div>        
             </form>
