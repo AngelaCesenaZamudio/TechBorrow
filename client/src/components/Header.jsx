@@ -38,53 +38,15 @@ function Header(){
         </div>
 
         <div className='flex space-x-4 text-xl ml-auto'>
-            <button className='border-black text-black'><a href='/Menu'>Menu</a></button>
+            <button className='border-black text-black'><a href='/Menu'>Menú</a></button>
 
-            <Dropdown isOpen={dropdown2} toggle={toggleDropdown2}>
-                <DropdownToggle className='border-transparent bg-white text-black'>Servicios</DropdownToggle>
-            
-            <DropdownMenu>
-                 <DropdownItem><a href="./PantallaPrestamoMaterial">Prestamo</a></DropdownItem>
-                 <DropdownItem><a href="">Devolucion</a></DropdownItem>
-                 <DropdownItem>Reporte</DropdownItem>
-                 <DropdownItem>Inventario</DropdownItem>
-            </DropdownMenu>
-            </Dropdown>
+            <button className='border-black text-black'><a href='/PantallaPrestamoMaterial'>Préstamo</a></button>
 
-            <Dropdown isOpen={dropdown3} toggle={toggleDropdown3}>
-                <DropdownToggle className='border-transparent bg-white text-black'>Material</DropdownToggle>
-            <DropdownMenu>
-                            <DropdownItem toggle={false} onClick={toggleDropdown4} className='text-black'>
-                                Registrar
-                            </DropdownItem>
+            <button className='border-black text-black'><a href='/'>Devolución</a></button>
 
-                            {dropdown4 && (
-                                <div className='border-transparent bg-white shadow-lg mt-2 ml-3 p-2'>
-                                    <DropdownMenu>
-                                        <DropdownItem><a href="./PantallaMaterialLaboratorio">Material</a></DropdownItem>
-                                        <DropdownItem>Ubicacion</DropdownItem>
-                                        <DropdownItem>Categoria</DropdownItem>
-                                        <DropdownItem>Estado</DropdownItem>
-                                    </DropdownMenu>
-                                </div>
-                            )}
+            <button className='border-black text-black'><a href='/PantallaMaterialLaboratorio'>Material</a></button>
 
-                 <DropdownItem>Consultar</DropdownItem>
-                 <DropdownItem>Modificar</DropdownItem>
-                 <DropdownItem>Eliminar</DropdownItem>
-            </DropdownMenu>
-            </Dropdown>
-
-            <Dropdown isOpen={dropdown5} toggle={toggleDropdown5}>
-                <DropdownToggle className='border-transparent bg-white text-black'>Usuario</DropdownToggle>
-            
-            <DropdownMenu>
-                 <DropdownItem><a href="./Prestamo">Registrar</a></DropdownItem>
-                 <DropdownItem>Consultar</DropdownItem>
-                 <DropdownItem>Modificar</DropdownItem>
-                 <DropdownItem>Eliminar</DropdownItem>
-            </DropdownMenu>
-            </Dropdown>
+            <button className='border-black text-black'><a href='/'>Usuarios</a></button>
         </div>
 
           {/* Ícono de Usuario con menú desplegable */}

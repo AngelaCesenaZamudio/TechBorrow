@@ -7,8 +7,6 @@ import Footer from './components/footer.jsx';
 import MenuServicios from './components/MenuServicios.jsx';
 import PantallaMaterialLaboratorio from './components/PantallaMaterialLaboratorio.jsx';
 
-
-
 function App() {
     return (
         <Router>

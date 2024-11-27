@@ -14,31 +14,21 @@ const PrestamoService = {
             }
     });
     },
-    validarMaterial: (material) =>{
-        return Axios.get('http://localhost:3001/PrestamoRoute/validarMaterial',{
-            params : {
-                material : material
-            }
-    });
-    },
     estadoMaterial: (material) => {
-        return Axios.get('http://localhost:3001/PrestamoRoute/EstadoMaterial',{
+        return Axios.get('http://localhost:3001/PrestamoRoute/estadoMaterial',{
             params : {
                 material : material
             }
         });
     },
-    materialUbicacion: async (UbicacionId) =>{
-        const response = await Axios.get('http://localhost:3001/PrestamoRoute/materialUbicacion',{
-            params:{id_ubicacion:UbicacionId}
-        });
-        return response.data;
-    },
-    /*actualizarEstadoMaterial = async(id_material,estado)=>{
+    actualizarEstadoMaterial: (nombre_material)=>{
         try{
-            const response = await Axios.put('http://localhost:3001/PrestamoRoute/actualizarEstadoMaterial')
+            return Axios.put(`http://localhost:3001/PrestamoRoute/actualizarEstadoMaterial`, {nombre_material}); 
+        }catch(error){
+            console.error("Error al actualizar el estado del material: ",error);
+            throw error;
         }
-    }*/
+    }
 };
 
 export default PrestamoService;
