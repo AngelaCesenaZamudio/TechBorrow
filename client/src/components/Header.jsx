@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle} from 'reactstrap'
 import { Link } from 'react-router-dom';
-//import RegistroPrestamo from './RegistroPrestamo'
 
 
 function Header(){

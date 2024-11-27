@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Toast } from 'primereact/toast';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
-import './Prestamo.css';
+import './Alertas.css';
 import PrestamoService from '../services/PrestamoService';
 import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
