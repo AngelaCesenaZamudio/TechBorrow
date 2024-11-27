@@ -280,6 +280,24 @@ function PantallaPrestamoMaterial(){
         return `${fechaFormateada} ${horaFormateada}`;
     }
 
+    const calcularHoraVencimiento = (fecha,hora) =>{
+        const fechaCombinada = `${fecha.split('T')[0]}T${hora}`;
+        const fechaHora = new Date(fechaCombinada);
+
+        fechaHora.setHours(fechaHora.getHours() + 1);
+
+        const opcionesFecha = {year: 'numeric', month: '2-digit', day:'2-digit'};
+        const opcionesHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
+
+        const fechaVencimiento = fechaHora.toLocaleDateString('es-MX', opcionesFecha);
+        const horaVencimiento = fechaHora.toLocaleTimeString('es-MX', opcionesHora);
+
+        return `${fechaVencimiento} ${horaVencimiento}`;
+    };
+
+    const horaVencimiento = calcularHoraVencimiento(fecha,hora);
+    console.log(horaVencimiento);
+
     return(
         <div>
         <Toast ref={toast} />
@@ -315,7 +333,7 @@ function PantallaPrestamoMaterial(){
                 {prestamos.map((prestamos,index) => (
                 <tr key={index}>    
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.fechavencimiento}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{calcularHoraVencimiento(prestamos.fecha, prestamos.hora)}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.comentarios}</td> {/*esto se obtiene de devolucion*/}
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
