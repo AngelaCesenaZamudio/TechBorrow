@@ -323,7 +323,6 @@ function PantallaPrestamoMaterial(){
                 <tr>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de registro</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de vencimiento</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de devolución</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoría</th> 
@@ -334,7 +333,6 @@ function PantallaPrestamoMaterial(){
                 <tr key={index}>    
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{calcularHoraVencimiento(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.comentarios}</td> {/*esto se obtiene de devolucion*/}
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>
