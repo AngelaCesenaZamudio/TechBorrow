@@ -42,7 +42,7 @@ function Header(){
 
             <button className='border-black text-black'><a href='/PantallaPrestamoMaterial'>Préstamo</a></button>
 
-            <button className='border-black text-black'><a href='/'>Devolución</a></button>
+            <button className='border-black text-black'><a href='/PantallaDevolucionMaterial'>Devolución</a></button>
 
             <button className='border-black text-black'><a href='/PantallaMaterialLaboratorio'>Material</a></button>
 

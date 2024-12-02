@@ -10,16 +10,15 @@ import PrestamoService from '../services/PrestamoService';
 import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
 
-function PantallaPrestamoMaterial(){ 
+function PantallaDevolucionMaterial(){ 
     const [id_prestamo,setid_prestamo] = useState(0);
+    const [id_material, setid_material] = useState("");
     const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
     const [nombre_materialValido, setnombre_materialValido] = useState("");
     const [nombre_solicitante, setnombre_solicitante] = useState("");
     const [fecha,setfecha] = useState("");
     const [hora,sethora] = useState("");
-    const [fechavencimiento, setfechavencimiento] = useState("");
-    const [horavencimiento, sethoravencimiento] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
     const [prestamos, setprestamos] = useState([]);
@@ -28,8 +27,8 @@ function PantallaPrestamoMaterial(){
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
     const [comentarios, setcomentarios] = useState("");
-    const toast = useRef(null);
 
+    const toast = useRef(null);
 
     //Mensaje de confirmacion de exito
     const MensajeEx = (mensaje) =>{
@@ -158,26 +157,15 @@ function PantallaPrestamoMaterial(){
             return;
         }
 
-        calcularHoravencimiento(fecha,hora);
-
-        setTimeout(()=>{
-        console.log("fecha vencimiento en agregar: "+fechavencimiento);
-        console.log("hora vencimiento en agregar:"+horavencimiento);
-
-        const prestamoData ={
+        PrestamoService.RegistroPrestamo({
             id_prestamo:id_prestamo,
             matricula_claveempleado:matricula_claveempleado,
             nombre_material:nombre_material,
             estado:"Prestado",
             comentarios:comentarios,
             fecha:fecha,
-            hora:hora,
-            fechavencimiento:fechavencimiento,
-            horavencimiento:horavencimiento
-        };
-
-        PrestamoService.RegistroPrestamo(prestamoData)
-        .then(async (response)=>{
+            hora:hora
+        }).then(async (response)=>{
             if(response.status === 200){
             MensajeEx("Registro guardado con exito!");
             limpiarCampos();
@@ -203,7 +191,6 @@ function PantallaPrestamoMaterial(){
             setshowErrorMessage(true);
             setshowSuccessMessage(false);
         });
-    }, 500);
     }
 
     //Funcion que genera la fecha
@@ -293,50 +280,30 @@ function PantallaPrestamoMaterial(){
         return `${fechaFormateada} ${horaFormateada}`;
     }
 
-    useEffect(()=>{
-       console.log("fecha actualizada: "+fechavencimiento); 
-    }, [fechavencimiento]);
-
-    useEffect(()=>{
-        console.log("hora actualizada: "+horavencimiento); 
-     }, [horavencimiento]);
-
-    //Funcion que genera la fecha y hora de vencimiento
-    const calcularHoravencimiento = (fecha,hora) =>{
-        console.log("fecha: "+fecha);
-        console.log("hora: "+hora);
-
+    const calcularHoraVencimiento = (fecha,hora) =>{
         const fechaCombinada = `${fecha.split('T')[0]}T${hora}`;
         const fechaHora = new Date(fechaCombinada);
 
-        console.log("fecha combinada: "+fechaCombinada);
-
         fechaHora.setHours(fechaHora.getHours() + 1);
 
-        const anio = fechaHora.getFullYear();
-        const mes = (fechaHora.getMonth()+1).toString().padStart(2, '0');
-        const dia = fechaHora.getDate().toString().padStart(2, '0');
-        const horas = fechaHora.getHours().toString().padStart(2, '0');
-        const minutos = fechaHora.getMinutes().toString().padStart(2, '0');
-        const segundos = fechaHora.getSeconds().toString().padStart(2, '0');
+        const opcionesFecha = {year: 'numeric', month: '2-digit', day:'2-digit'};
+        const opcionesHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
 
-        const fechavencimiento = `${anio}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+        const fechaVencimiento = fechaHora.toLocaleDateString('es-MX', opcionesFecha);
+        const horaVencimiento = fechaHora.toLocaleTimeString('es-MX', opcionesHora);
 
-        console.log("fecha vencimiento en calcular: "+fechavencimiento);
-
-        setfechavencimiento(fechavencimiento.split(' ')[0]);
-        sethoravencimiento(fechavencimiento.split(' ')[1]);
-
-        return fechavencimiento;
+        return `${fechaVencimiento} ${horaVencimiento}`;
     };
-    
+
+    const horaVencimiento = calcularHoraVencimiento(fecha,hora);
+    console.log(horaVencimiento);
 
     return(
         <div>
         <Toast ref={toast} />
         <div className='bg-white text-xl font-bold max-w-7xl mx-auto p-4'>
         <div className='flex items-center justify-between mb-4'>
-        <h1 className='flex-none mb-4'>Préstamos</h1>
+        <h1 className='flex-none mb-4'>Devoluciones</h1>
 
         <div className='flex items-center flex-grow justify-center mb-2'>
         <div className='relative flex-grow max-w-xl'> 
@@ -347,15 +314,16 @@ function PantallaPrestamoMaterial(){
         </div>
         </div>
         <button className='bg-blue-500 text-white font-bold py-1 px-3 rounded h-10 ml-4'
-        onClick={()=> setShowDialog(true)}>Préstamo</button>
+        onClick={()=> setShowDialog(true)}>Devolución</button>
         </div>
         <hr className='my-4 border-gray-900'/>
 
         <table className='min-w-full border-collapse'>
             <thead>
                 <tr>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans' colSpan="2">Datos de préstamo</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
+
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de vencimiento</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans' colSpan="2">Datos de devolución</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoría</th> 
@@ -365,8 +333,8 @@ function PantallaPrestamoMaterial(){
                 {prestamos.map((prestamos,index) => (
                 <tr key={index}>    
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.estado}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.horavencimiento}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{calcularHoraVencimiento(prestamos.fecha, prestamos.hora)}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{"Estado"}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>
@@ -383,7 +351,7 @@ function PantallaPrestamoMaterial(){
             </tbody>
         </table> 
         {/*Desplegable para realizar el prestamo */}
-        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Préstamo</span>}visible={showDialog}
+        <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Devolución</span>}visible={showDialog}
             style={{width:'40vw'}}  
             onHide={()=>setShowDialog(false)}>
                 <form onSubmit={(event) => agregar(event)}>
@@ -408,7 +376,7 @@ function PantallaPrestamoMaterial(){
                 <div className='mb-3 text-center'>
                     <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
                     <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
-                    className='border border-gray-300 rounded-md p-2 w-70 text-center' required/> 
+                    className='border border-gray-300 rounded-md p-2 w-70 text-center' disabled/> 
             </div>
             </div>
     
@@ -448,4 +416,4 @@ function PantallaPrestamoMaterial(){
     );
 }
 
-export default PantallaPrestamoMaterial;
+export default PantallaDevolucionMaterial;
