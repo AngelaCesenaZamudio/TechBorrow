@@ -6,7 +6,7 @@ import { Toast } from 'primereact/toast';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
-import PrestamoService from '../services/PrestamoService';
+import DevolucionService from '../services/DevolucionService';
 import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
 
@@ -15,13 +15,14 @@ function PantallaDevolucionMaterial(){
     const [id_material, setid_material] = useState("");
     const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
-    const [nombre_materialValido, setnombre_materialValido] = useState("");
     const [nombre_solicitante, setnombre_solicitante] = useState("");
-    const [fecha,setfecha] = useState("");
-    const [hora,sethora] = useState("");
+    const [fechavencimiento,setfechavencimiento] = useState("");
+    const [horavencimiento,sethoravencimiento] = useState("");
+    const [fechadevolucion,setfechadevolucion] = useState("");
+    const [horadevolucion,sethoradevolucion] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
-    const [prestamos, setprestamos] = useState([]);
+    const [devoluciones, setdevoluciones] = useState([]);
     const [matriculaValida, setmatriculaValida] = useState(false);
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
@@ -63,20 +64,19 @@ function PantallaDevolucionMaterial(){
         }
     };
 
-    //Metodo que valida luego de comprobar que no hay letras ni simbolos
+    //Metodo que valida la matricula y devuelve prestamo si tiene activo
     const debounceValidaMatricula = debounce(async(value) => {
         if(value.length>=7){
         try{
-            const response = await PrestamoService.validarMatricula_Claveempleado(value);
+            const response = await DevolucionService.obtenerDevolucionPorMatricula_Claveempleado(value);
             console.log("Despues de la consulta: ",response);
             if(response.status===200){
                 setmatriculaValida(true);
                 setmatricula_claveempleado(value);
                 setnombre_solicitante(response.data.nombre);
+                setnombre_material(response.data.nombre_material);
                 seterrorMatricula('');
                 setisFieldDisabled(false);
-                console.log("estado matricula: ",matriculaValida);
-                console.log("Mensaje db: ",response.data.mensaje);
             }
         }catch(error){
             console.log("Error en el client: ",error);
@@ -89,11 +89,7 @@ function PantallaDevolucionMaterial(){
                    //Solicitante con adeudos
                     MensajeEr("El solicitante tiene adeudos pendientes.");
 
-                }else if(error.response.data==="El solicitante ya tiene un prestamo activo"){
-                    //Solicitante con prestamos activo
-                    MensajeEr("El solicitante ya tiene un prestamo activo");
-                }
-                else{
+                }else{
                     MensajeEr("Solicitante no activo o problemas con adeudos");
                 }
             }else{
@@ -107,9 +103,7 @@ function PantallaDevolucionMaterial(){
     //Funcion para que actualice la matricula
     useEffect(()=>{
         if(matriculaValida){
-            console.log("Estado despues de actualizar: ",matriculaValida);
-            console.log('solicitante: ',nombre_solicitante);
-            MensajeEx("Solicitante valido");    
+            MensajeEx("Solicitante con prestamo activo");    
         }
     }, [matriculaValida, nombre_solicitante]);
     
@@ -122,33 +116,6 @@ function PantallaDevolucionMaterial(){
         }
     };
 
-    //Validar que el material este disponible
-    const debounceMaterial = async (value) =>{
-        try{
-            const response = await PrestamoService.estadoMaterial(value);
-            console.log("Servidor: ",response);
-            console.log("Recibido: ",response.data.estado);
-            if(response.status===200 && response.data.mensaje ==="El material esta disponible"){
-                setnombre_materialValido(true);
-                MensajeEx("El material esta disponible");
-                setnombre_material(value);
-            }else{
-                MensajeAd("El material no esta disponible");
-            }
-        }catch(error){
-            if(error.response){
-                //Material no registrado
-                if(error.response.status===404){
-                MensajeEr("Material no registrado");
-            }else{
-                MensajeEr("Error al validar");
-            }
-        }else{
-            MensajeEr("Error de conexion");
-        }
-        }
-    }; 
-
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
         event.preventDefault();
@@ -157,25 +124,38 @@ function PantallaDevolucionMaterial(){
             return;
         }
 
-        PrestamoService.RegistroPrestamo({
+        console.log("Fecha en int: ",fechadevolucion);
+        console.log("hora en int: ",horadevolucion);
+
+        DevolucionService.RegistroDevolucion({
             id_prestamo:id_prestamo,
             matricula_claveempleado:matricula_claveempleado,
             nombre_material:nombre_material,
-            estado:"Prestado",
+            estado:"Finalizado",
             comentarios:comentarios,
-            fecha:fecha,
-            hora:hora
+            fechavencimiento:fechavencimiento,
+            horavencimiento:horavencimiento,
+            fechadevolucion:fechadevolucion,
+            horadevolucion:horadevolucion
         }).then(async (response)=>{
             if(response.status === 200){
-            MensajeEx("Registro guardado con exito!");
+            MensajeEx("Devolucion guardada con exito!");
             limpiarCampos();
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
             setid_prestamo(prevId => prevId +1);
 
-            PrestamoService.actualizarEstadoMaterial(nombre_material)
+           DevolucionService.actualizarEstadoMaterial(nombre_material)
             .then(response =>{
                 MensajeEx("Estado de material actualizado");
+            })
+            .catch(error =>{
+                console.error("Error al actualizar: ",error);
+            })
+
+            DevolucionService.actualizarEstadoPrestamo(nombre_material)
+            .then(response =>{
+                MensajeEx("Estado de prestamo actualizado");
             })
             .catch(error =>{
                 console.error("Error al actualizar: ",error);
@@ -213,7 +193,7 @@ function PantallaDevolucionMaterial(){
         };
 
         const fecha_Prestamo = obtenerFecha();
-        setfecha(fecha_Prestamo);
+        setfechadevolucion(fecha_Prestamo);
     }, []);
 
     const handleSubmit = (event) => {
@@ -235,20 +215,22 @@ function PantallaDevolucionMaterial(){
         };
 
         const hora_Prestamo = obtenerHora();
-        sethora(hora_Prestamo);
+        sethoradevolucion(hora_Prestamo);
     }, []);
 
-    //Funcion para obtener los prestamos y mostrarlos
+    //Funcion para obtener las devoluciones y mostrarlos
     useEffect(() =>{
-        const fetchPrestamos = async () => {
+        const fetchDevoluciones = async () => {
+            console.log("Entro a la consulta");
             try{
-                const response = await PrestamoService.obtenerPrestamos();
-                setprestamos(response.data);
+                console.log("Dentro de la consulta");
+                const response = await DevolucionService.obtenerDevolucion();
+                setdevoluciones(response.data);
             }catch(error){
-                MensajeEr("Error al obtener los materiales");
+                MensajeEr("Error al obtener los materiales: ",error);
             }
         };
-        fetchPrestamos();
+        fetchDevoluciones();
     }, []);
 
     //Funcion para escribir en tiempo real en los comentarisos
@@ -270,33 +252,15 @@ function PantallaDevolucionMaterial(){
     const combinarFechaHora = (fecha, hora) =>{
         const combinada = `${fecha.split('T')[0]}T${hora}`;
         const fechaHora = new Date(combinada);
-
+        
         const opcionFecha = {year: 'numeric', month: '2-digit', day: '2-digit'};
         const fechaFormateada = fechaHora.toLocaleDateString('es-MX',opcionFecha);
-        
+                
         const opcionHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
         const horaFormateada = fechaHora.toLocaleTimeString('es-MX',opcionHora);
-
+        
         return `${fechaFormateada} ${horaFormateada}`;
     }
-
-    const calcularHoraVencimiento = (fecha,hora) =>{
-        const fechaCombinada = `${fecha.split('T')[0]}T${hora}`;
-        const fechaHora = new Date(fechaCombinada);
-
-        fechaHora.setHours(fechaHora.getHours() + 1);
-
-        const opcionesFecha = {year: 'numeric', month: '2-digit', day:'2-digit'};
-        const opcionesHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
-
-        const fechaVencimiento = fechaHora.toLocaleDateString('es-MX', opcionesFecha);
-        const horaVencimiento = fechaHora.toLocaleTimeString('es-MX', opcionesHora);
-
-        return `${fechaVencimiento} ${horaVencimiento}`;
-    };
-
-    const horaVencimiento = calcularHoraVencimiento(fecha,hora);
-    console.log(horaVencimiento);
 
     return(
         <div>
@@ -322,7 +286,7 @@ function PantallaDevolucionMaterial(){
             <thead>
                 <tr>
 
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de vencimiento</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans' colSpan="2">Datos de devolución</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
@@ -330,14 +294,14 @@ function PantallaDevolucionMaterial(){
                 </tr>
             </thead>
             <tbody>
-                {prestamos.map((prestamos,index) => (
+                {devoluciones.map((devoluciones,index) => (
                 <tr key={index}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{calcularHoraVencimiento(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{"Estado"}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.horavencimiento}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(devoluciones.fechadevolucion, devoluciones.horadevolucion)}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.estado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.matricula_claveempleado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.nombre_material}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.categoria}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -375,12 +339,12 @@ function PantallaDevolucionMaterial(){
             <div className='flex justify-center mb-3 border '> 
                 <div className='mb-3 text-center'>
                     <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
-                    <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
+                    <input type='text' id='nombre_material' value={nombre_material} onChange={(e)=> setnombre_material(e.target.value)}
                     className='border border-gray-300 rounded-md p-2 w-70 text-center' disabled/> 
             </div>
             </div>
     
-            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de préstamo</h1>  
+            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de devolución</h1>  
             <div className='flex flex-col items-center border'> 
                 <div className='w-3/4 mb-2'>
                     <label htmlFor='comentarios' className='text-l font-semibold mb-2 block'>Comentarios</label>
@@ -392,12 +356,12 @@ function PantallaDevolucionMaterial(){
             <div className='w-full h-full flex justify-center gap-8'>   
              <div className='flex flex-col items-center'>
                     <label htmlFor='Fecha' className='text-l font-semibold mb-1'>Fecha</label>      
-                    <input id='fecha' type='date' value={fecha} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
+                    <input id='fechadevolucion' type='date' value={fechadevolucion} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
              </div>
 
                <div className='flex flex-col items-center'>
                <label htmlFor='Hora' className='text-l font-semibold mb-1'>Hora</label>  
-               <input id='hora' type='time' value={hora} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
+               <input id='horadevolucion' type='time' value={horadevolucion} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
 
                </div>
               </div>
