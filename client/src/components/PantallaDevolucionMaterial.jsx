@@ -64,20 +64,19 @@ function PantallaDevolucionMaterial(){
         }
     };
 
-    //Metodo que valida luego de comprobar que no hay letras ni simbolos
+    //Metodo que valida la matricula y devuelve prestamo si tiene activo
     const debounceValidaMatricula = debounce(async(value) => {
         if(value.length>=7){
         try{
-            const response = await PrestamoService.validarMatricula_Claveempleado(value);
+            const response = await DevolucionService.obtenerDevolucionPorMatricula_Claveempleado(value);
             console.log("Despues de la consulta: ",response);
             if(response.status===200){
                 setmatriculaValida(true);
                 setmatricula_claveempleado(value);
                 setnombre_solicitante(response.data.nombre);
+                setnombre_material(response.data.nombre_material);
                 seterrorMatricula('');
                 setisFieldDisabled(false);
-                console.log("estado matricula: ",matriculaValida);
-                console.log("Mensaje db: ",response.data.mensaje);
             }
         }catch(error){
             console.log("Error en el client: ",error);
@@ -90,11 +89,7 @@ function PantallaDevolucionMaterial(){
                    //Solicitante con adeudos
                     MensajeEr("El solicitante tiene adeudos pendientes.");
 
-                }else if(error.response.data==="El solicitante ya tiene un prestamo activo"){
-                    //Solicitante con prestamos activo
-                    MensajeEr("El solicitante ya tiene un prestamo activo");
-                }
-                else{
+                }else{
                     MensajeEr("Solicitante no activo o problemas con adeudos");
                 }
             }else{
@@ -108,9 +103,7 @@ function PantallaDevolucionMaterial(){
     //Funcion para que actualice la matricula
     useEffect(()=>{
         if(matriculaValida){
-            console.log("Estado despues de actualizar: ",matriculaValida);
-            console.log('solicitante: ',nombre_solicitante);
-            MensajeEx("Solicitante valido");    
+            MensajeEx("Solicitante con prestamo activo");    
         }
     }, [matriculaValida, nombre_solicitante]);
     
@@ -123,33 +116,6 @@ function PantallaDevolucionMaterial(){
         }
     };
 
-    //Validar que el material este disponible
-    const debounceMaterial = async (value) =>{
-        try{
-            const response = await PrestamoService.estadoMaterial(value);
-            console.log("Servidor: ",response);
-            console.log("Recibido: ",response.data.estado);
-            if(response.status===200 && response.data.mensaje ==="El material esta disponible"){
-                setnombre_materialValido(true);
-                MensajeEx("El material esta disponible");
-                setnombre_material(value);
-            }else{
-                MensajeAd("El material no esta disponible");
-            }
-        }catch(error){
-            if(error.response){
-                //Material no registrado
-                if(error.response.status===404){
-                MensajeEr("Material no registrado");
-            }else{
-                MensajeEr("Error al validar");
-            }
-        }else{
-            MensajeEr("Error de conexion");
-        }
-        }
-    }; 
-
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
         event.preventDefault();
@@ -158,25 +124,38 @@ function PantallaDevolucionMaterial(){
             return;
         }
 
-        PrestamoService.RegistroPrestamo({
+        console.log("Fecha en int: ",fechadevolucion);
+        console.log("hora en int: ",horadevolucion);
+
+        DevolucionService.RegistroDevolucion({
             id_prestamo:id_prestamo,
             matricula_claveempleado:matricula_claveempleado,
             nombre_material:nombre_material,
-            estado:"Prestado",
+            estado:"Finalizado",
             comentarios:comentarios,
-            fecha:fecha,
-            hora:hora
+            fechavencimiento:fechavencimiento,
+            horavencimiento:horavencimiento,
+            fechadevolucion:fechadevolucion,
+            horadevolucion:horadevolucion
         }).then(async (response)=>{
             if(response.status === 200){
-            MensajeEx("Registro guardado con exito!");
+            MensajeEx("Devolucion guardada con exito!");
             limpiarCampos();
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
             setid_prestamo(prevId => prevId +1);
 
-            PrestamoService.actualizarEstadoMaterial(nombre_material)
+           DevolucionService.actualizarEstadoMaterial(nombre_material)
             .then(response =>{
                 MensajeEx("Estado de material actualizado");
+            })
+            .catch(error =>{
+                console.error("Error al actualizar: ",error);
+            })
+
+            DevolucionService.actualizarEstadoPrestamo(nombre_material)
+            .then(response =>{
+                MensajeEx("Estado de prestamo actualizado");
             })
             .catch(error =>{
                 console.error("Error al actualizar: ",error);
@@ -307,7 +286,7 @@ function PantallaDevolucionMaterial(){
             <thead>
                 <tr>
 
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de vencimiento</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans' colSpan="2">Datos de devolución</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
@@ -317,7 +296,7 @@ function PantallaDevolucionMaterial(){
             <tbody>
                 {devoluciones.map((devoluciones,index) => (
                 <tr key={index}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.fechavencimiento}, {devoluciones.horavencimiento}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.horavencimiento}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(devoluciones.fechadevolucion, devoluciones.horadevolucion)}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.estado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.matricula_claveempleado}</td>
@@ -360,12 +339,12 @@ function PantallaDevolucionMaterial(){
             <div className='flex justify-center mb-3 border '> 
                 <div className='mb-3 text-center'>
                     <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
-                    <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
+                    <input type='text' id='nombre_material' value={nombre_material} onChange={(e)=> setnombre_material(e.target.value)}
                     className='border border-gray-300 rounded-md p-2 w-70 text-center' disabled/> 
             </div>
             </div>
     
-            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de préstamo</h1>  
+            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de devolución</h1>  
             <div className='flex flex-col items-center border'> 
                 <div className='w-3/4 mb-2'>
                     <label htmlFor='comentarios' className='text-l font-semibold mb-2 block'>Comentarios</label>

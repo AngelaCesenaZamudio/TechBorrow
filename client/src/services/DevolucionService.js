@@ -24,7 +24,7 @@ const DevolucionService = {
     },
     actualizarEstadoPrestamo:(nombre_material)=>{
         try{
-            return Axios.put(`http://localhost:3001/DevolucionRoute/actualizarEstadoMaterial`, {nombre_material});
+            return Axios.put(`http://localhost:3001/DevolucionRoute/actualizarEstadoPrestamo`, {nombre_material});
         }catch(error){
             console.error("Error al actualizar el estado del prestamo: ",error);
             throw error;
