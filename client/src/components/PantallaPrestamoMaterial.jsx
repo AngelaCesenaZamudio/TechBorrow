@@ -16,8 +16,8 @@ function PantallaPrestamoMaterial(){
     const [nombre_material,setnombre_material] = useState("");
     const [nombre_materialValido, setnombre_materialValido] = useState("");
     const [nombre_solicitante, setnombre_solicitante] = useState("");
-    const [fecha,setfecha] = useState("");
-    const [hora,sethora] = useState("");
+    const [fecharegistro,setfecharegistro] = useState("");
+    const [horaregistro,sethoraregistro] = useState("");
     const [fechavencimiento, setfechavencimiento] = useState("");
     const [horavencimiento, sethoravencimiento] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
@@ -170,8 +170,8 @@ function PantallaPrestamoMaterial(){
             nombre_material:nombre_material,
             estado:"Prestado",
             comentarios:comentarios,
-            fecha:fecha,
-            hora:hora,
+            fecharegistro:fecharegistro,
+            horaregistro:horaregistro,
             fechavencimiento:fechavencimiento,
             horavencimiento:horavencimiento
         };
@@ -226,7 +226,7 @@ function PantallaPrestamoMaterial(){
         };
 
         const fecha_Prestamo = obtenerFecha();
-        setfecha(fecha_Prestamo);
+        setfecharegistro(fecha_Prestamo);
     }, []);
 
     const handleSubmit = (event) => {
@@ -248,7 +248,7 @@ function PantallaPrestamoMaterial(){
         };
 
         const hora_Prestamo = obtenerHora();
-        sethora(hora_Prestamo);
+        sethoraregistro(hora_Prestamo);
     }, []);
 
     //Funcion para obtener los prestamos y mostrarlos
@@ -364,7 +364,7 @@ function PantallaPrestamoMaterial(){
             <tbody>
                 {prestamos.map((prestamos,index) => (
                 <tr key={index}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecharegistro, prestamos.horaregistro)}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.estado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.horavencimiento}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
@@ -424,12 +424,12 @@ function PantallaPrestamoMaterial(){
             <div className='w-full h-full flex justify-center gap-8'>   
              <div className='flex flex-col items-center'>
                     <label htmlFor='Fecha' className='text-l font-semibold mb-1'>Fecha</label>      
-                    <input id='fecha' type='date' value={fecha} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
+                    <input id='fecharegistro' type='date' value={fecharegistro} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
              </div>
 
                <div className='flex flex-col items-center'>
                <label htmlFor='Hora' className='text-l font-semibold mb-1'>Hora</label>  
-               <input id='hora' type='time' value={hora} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
+               <input id='horaregistro' type='time' value={horaregistro} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
 
                </div>
               </div>

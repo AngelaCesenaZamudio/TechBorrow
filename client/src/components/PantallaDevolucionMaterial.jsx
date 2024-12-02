@@ -6,7 +6,7 @@ import { Toast } from 'primereact/toast';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
-import PrestamoService from '../services/PrestamoService';
+import DevolucionService from '../services/DevolucionService';
 import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
 
@@ -15,13 +15,14 @@ function PantallaDevolucionMaterial(){
     const [id_material, setid_material] = useState("");
     const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
     const [nombre_material,setnombre_material] = useState("");
-    const [nombre_materialValido, setnombre_materialValido] = useState("");
     const [nombre_solicitante, setnombre_solicitante] = useState("");
-    const [fecha,setfecha] = useState("");
-    const [hora,sethora] = useState("");
+    const [fechavencimiento,setfechavencimiento] = useState("");
+    const [horavencimiento,sethoravencimiento] = useState("");
+    const [fechadevolucion,setfechadevolucion] = useState("");
+    const [horadevolucion,sethoradevolucion] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
-    const [prestamos, setprestamos] = useState([]);
+    const [devoluciones, setdevoluciones] = useState([]);
     const [matriculaValida, setmatriculaValida] = useState(false);
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
@@ -213,7 +214,7 @@ function PantallaDevolucionMaterial(){
         };
 
         const fecha_Prestamo = obtenerFecha();
-        setfecha(fecha_Prestamo);
+        setfechadevolucion(fecha_Prestamo);
     }, []);
 
     const handleSubmit = (event) => {
@@ -235,20 +236,22 @@ function PantallaDevolucionMaterial(){
         };
 
         const hora_Prestamo = obtenerHora();
-        sethora(hora_Prestamo);
+        sethoradevolucion(hora_Prestamo);
     }, []);
 
-    //Funcion para obtener los prestamos y mostrarlos
+    //Funcion para obtener las devoluciones y mostrarlos
     useEffect(() =>{
-        const fetchPrestamos = async () => {
+        const fetchDevoluciones = async () => {
+            console.log("Entro a la consulta");
             try{
-                const response = await PrestamoService.obtenerPrestamos();
-                setprestamos(response.data);
+                console.log("Dentro de la consulta");
+                const response = await DevolucionService.obtenerDevolucion();
+                setdevoluciones(response.data);
             }catch(error){
-                MensajeEr("Error al obtener los materiales");
+                MensajeEr("Error al obtener los materiales: ",error);
             }
         };
-        fetchPrestamos();
+        fetchDevoluciones();
     }, []);
 
     //Funcion para escribir en tiempo real en los comentarisos
@@ -270,33 +273,15 @@ function PantallaDevolucionMaterial(){
     const combinarFechaHora = (fecha, hora) =>{
         const combinada = `${fecha.split('T')[0]}T${hora}`;
         const fechaHora = new Date(combinada);
-
+        
         const opcionFecha = {year: 'numeric', month: '2-digit', day: '2-digit'};
         const fechaFormateada = fechaHora.toLocaleDateString('es-MX',opcionFecha);
-        
+                
         const opcionHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
         const horaFormateada = fechaHora.toLocaleTimeString('es-MX',opcionHora);
-
+        
         return `${fechaFormateada} ${horaFormateada}`;
     }
-
-    const calcularHoraVencimiento = (fecha,hora) =>{
-        const fechaCombinada = `${fecha.split('T')[0]}T${hora}`;
-        const fechaHora = new Date(fechaCombinada);
-
-        fechaHora.setHours(fechaHora.getHours() + 1);
-
-        const opcionesFecha = {year: 'numeric', month: '2-digit', day:'2-digit'};
-        const opcionesHora = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:false};
-
-        const fechaVencimiento = fechaHora.toLocaleDateString('es-MX', opcionesFecha);
-        const horaVencimiento = fechaHora.toLocaleTimeString('es-MX', opcionesHora);
-
-        return `${fechaVencimiento} ${horaVencimiento}`;
-    };
-
-    const horaVencimiento = calcularHoraVencimiento(fecha,hora);
-    console.log(horaVencimiento);
 
     return(
         <div>
@@ -330,14 +315,14 @@ function PantallaDevolucionMaterial(){
                 </tr>
             </thead>
             <tbody>
-                {prestamos.map((prestamos,index) => (
+                {devoluciones.map((devoluciones,index) => (
                 <tr key={index}>    
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{calcularHoraVencimiento(prestamos.fecha, prestamos.hora)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{"Estado"}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.fechavencimiento}, {devoluciones.horavencimiento}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(devoluciones.fechadevolucion, devoluciones.horadevolucion)}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.estado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.matricula_claveempleado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.nombre_material}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.categoria}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -392,12 +377,12 @@ function PantallaDevolucionMaterial(){
             <div className='w-full h-full flex justify-center gap-8'>   
              <div className='flex flex-col items-center'>
                     <label htmlFor='Fecha' className='text-l font-semibold mb-1'>Fecha</label>      
-                    <input id='fecha' type='date' value={fecha} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
+                    <input id='fechadevolucion' type='date' value={fechadevolucion} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
              </div>
 
                <div className='flex flex-col items-center'>
                <label htmlFor='Hora' className='text-l font-semibold mb-1'>Hora</label>  
-               <input id='hora' type='time' value={hora} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
+               <input id='horadevolucion' type='time' value={horadevolucion} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
 
                </div>
               </div>

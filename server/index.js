@@ -8,10 +8,13 @@ app.use(express.json());
 const LoginRoute = require("./routes/LoginRoute");
 const PrestamoRoute = require("./routes/PrestamoRoute");
 const RegistroMaterialRoute = require("./routes/RegistroMaterialRoute");
+const DevolucionRoute = require("./routes/DevolucionRoute");
 
 app.use("/LoginRoute", LoginRoute);
 app.use("/PrestamoRoute", PrestamoRoute);
 app.use("/RegistroMaterialRoute", RegistroMaterialRoute);
+app.use("/DevolucionRoute", DevolucionRoute);
+
 // Redirigir la ruta raíz a la página de login
 app.get("/", (req, res) => {
     res.redirect("/login");

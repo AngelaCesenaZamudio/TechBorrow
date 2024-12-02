@@ -16,8 +16,8 @@ router.post('/RegistroPrestamo', (req,res) => {
     const nombre_material = req.body.nombre_material;
     const estado = req.body.estado;
     const comentarios = req.body.comentarios;
-    const fecha = req.body.fecha;
-    const hora = req.body.hora;
+    const fecharegistro = req.body.fecharegistro;
+    const horaregistro = req.body.horaregistro;
     const fechavencimiento = req.body.fechavencimiento;
     const horavencimiento = req.body.horavencimiento;
 
@@ -49,9 +49,9 @@ router.post('/RegistroPrestamo', (req,res) => {
         const id_material = results[0].id_material;
 
         //Metodo para hacer la insercion del prestamo a la tabla
-        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecha, hora, fechavencimiento, horavencimiento)'+
+        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, fechavencimiento, horavencimiento)'+
         'VALUES (?,?,?,?,?,?,?,?)';
-        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecha, hora, fechavencimiento, horavencimiento], (err, results)=>{
+        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, fechavencimiento, horavencimiento], (err, results)=>{
             if(err){
                 console.error("Error al registrar el prestamo: ",err);
                 return res.status(500).json({message: "Error al registrar el prestamo", err: err});
@@ -123,7 +123,7 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
 
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerPrestamos', (req, res) => {
-    const query ='SELECT p.fecha, p.hora, '+ 
+    const query ='SELECT p.fecharegistro, p.horaregistro, '+ 
     'm.nombre_material, s.matricula_claveempleado, c.categoria, '+
     'p.estado, p.horavencimiento FROM prestamo AS p'+ 
     ' JOIN material AS m ON p.id_material = m.id_material'+

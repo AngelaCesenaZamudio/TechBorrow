@@ -10,8 +10,8 @@ const BD = mysql.createConnection({
 });
 
 //Registrar el prestamo por primera vez
-router.post('/RegistroPrestamo', (req,res) => {
-    const id_Prestamo = req.body.id_Prestamo;
+router.post('/RegistroDevolucion', (req,res) => {
+    const id_devolucion = req.body.id_Prestamo;
     const matricula_claveempleado = req.body.matricula_claveempleado;
     const nombre_material = req.body.nombre_material;
     const estado = req.body.estado;
@@ -122,13 +122,17 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
 });    
 
 //Metodo para obtener todos los prestamos ya generados
-router.get('/obtenerPrestamos', (req, res) => {
-    const query ='SELECT p.fecha, p.hora, '+ 
+router.get('/obtenerDevolucion', (req, res) => {
+    const query ='SELECT d.fechavencimiento, d.horavencimiento, '+ 
+    'd.fechadevolucion, d.horadevolucion, '+
     'm.nombre_material, s.matricula_claveempleado, c.categoria, '+
-    'p.estado, p.horavencimiento FROM prestamo AS p'+ 
-    ' JOIN material AS m ON p.id_material = m.id_material'+
-    ' JOIN solicitante AS s ON p.id_solicitante = s.id_solicitante'+
+    'd.estado FROM devolucion AS d'+ 
+    ' JOIN material AS m ON d.id_material = m.id_material'+
+    ' JOIN solicitante AS s ON d.id_solicitante = s.id_solicitante'+
     ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'; 
+
+    console.log("Entro a devolucion");
+    console.log("Query ejecutado: ",query);
         
     BD.query(query, (err, results) => {
         if(err){
@@ -141,7 +145,7 @@ router.get('/obtenerPrestamos', (req, res) => {
 });
 
 //Metodo para validar la matricula
-router.get('/validarMatricula_Claveempleado', (req, res) => {
+router.get('/obtenerDevolucionPorMatricula_Claveempleado', (req, res) => {
     const matricula = req.query.matricula_claveempleado;
     console.log("SERVER R: ",matricula);
 
@@ -192,34 +196,6 @@ router.get('/validarMatricula_Claveempleado', (req, res) => {
                 return res.status(200).send({mensaje:'Solicitante valido', nombre: solicitante.nombre}); 
             });
         });
-    });
-});
-
-//Metodo para validar que el material este disponible
-router.get('/estadoMaterial', (req, res) => {
-    const material = req.query.material;
-
-    const query ='SELECT e.estado FROM material m '+
-        'JOIN estado e ON m.id_estado = e.id_estado '+
-        'WHERE m.nombre_material = ?';
-        
-        BD.query(query, [material], (err, results) => {
-            if(err){
-                console.log(err);
-                return res.status(500).json('Error al obtener el material.');
-            }
-
-            if(results.length>0){
-                const estado = results[0].estado;
-
-                if(estado==='Disponible'){
-                return res.status(200).json({mensaje: 'El material esta disponible'});
-                }else if(estado==='Prestado'){
-                    return res.status(200).json({mensaje: 'El material no esta disponible'});
-                }
-            }
-            
-        return res.status(404).json('Material no valido');
     });
 });
 
