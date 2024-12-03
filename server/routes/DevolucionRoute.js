@@ -194,12 +194,13 @@ router.put('/actualizarEstadoPrestamo', async(req,res) =>{
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerDevolucion', (req, res) => {
     const query ='SELECT d.fechavencimiento, d.horavencimiento, '+ 
-    'd.fechadevolucion, d.horadevolucion, '+
-    'm.nombre_material, s.matricula_claveempleado, c.categoria, '+
-    'd.estado FROM devolucion AS d'+ 
+    'd.fechadevolucion, d.horadevolucion, d.estado, '+
+    'm.nombre_material, s.matricula_claveempleado, c.categoria '+
+    ' FROM devolucion AS d'+ 
     ' JOIN material AS m ON d.id_material = m.id_material'+
     ' JOIN solicitante AS s ON d.id_solicitante = s.id_solicitante'+
-    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'; 
+    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'+
+    ' WHERE d.estado ="Finalizado"'; 
 
     console.log("Entro a devolucion");
     console.log("Query ejecutado: ",query);
@@ -264,8 +265,10 @@ router.get('/obtenerDevolucionPorMatricula_Claveempleado', (req, res) => {
                             });
 
                         })
-                }    
-        });
+                } else{
+                    return res.status(404).send("No cuenta con un prestamo activo");
+                }   
+            });
     });
 });
 

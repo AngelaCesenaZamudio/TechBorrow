@@ -124,11 +124,12 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerPrestamos', (req, res) => {
     const query ='SELECT p.fecharegistro, p.horaregistro, '+ 
-    'm.nombre_material, s.matricula_claveempleado, c.categoria, '+
-    'p.estado, p.horavencimiento FROM prestamo AS p'+ 
+    'p.estado, m.nombre_material, s.matricula_claveempleado, c.categoria, '+
+    'p.horavencimiento FROM prestamo AS p'+ 
     ' JOIN material AS m ON p.id_material = m.id_material'+
     ' JOIN solicitante AS s ON p.id_solicitante = s.id_solicitante'+
-    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'; 
+    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria '+
+    'WHERE p.estado="Prestado"'; 
         
     BD.query(query, (err, results) => {
         if(err){

@@ -83,15 +83,7 @@ function PantallaDevolucionMaterial(){
             if(error.response){
                 //Solicitante no registrado
                 if(error.response.status===404){
-                MensajeEr("Solicitante no registrado");
-            }else if(error.response.status===400){
-                if(error.response.data === "El solicitante tiene adeudos pendientes."){
-                   //Solicitante con adeudos
-                    MensajeEr("El solicitante tiene adeudos pendientes.");
-
-                }else{
-                    MensajeEr("Solicitante no activo o problemas con adeudos");
-                }
+                MensajeEr("No cuenta con un prestamo activo");
             }else{
                 MensajeEr("Error al validar");
             }
