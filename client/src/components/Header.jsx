@@ -46,7 +46,7 @@ function Header(){
 
             <button className='border-black text-black'><a href='/PantallaMaterialLaboratorio'>Material</a></button>
 
-            <button className='border-black text-black'><a href='/'>Usuarios</a></button>
+            <button className='border-black text-black'><a href=''>Usuarios</a></button>
         </div>
 
           {/* Ícono de Usuario con menú desplegable */}
