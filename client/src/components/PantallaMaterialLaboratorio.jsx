@@ -8,7 +8,6 @@ import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
 import {Dialog} from 'primereact/dialog';
 import RegistroMaterialServices from '../services/RegistroMaterialServices';
-import PrestamoService from '../services/PrestamoService';
 
 function PantallaMaterialLaboratorio(){ 
     const [id_material,setid_material] = useState(1);
@@ -47,75 +46,16 @@ function PantallaMaterialLaboratorio(){
     const MensajeEr = (mensaje)=>{
         toast.current.show({severity: 'error', summary: 'Error', detail: mensaje, life: 3000});
     }
-    {/*
-    //Funcion para que no acepte simbolos
-        const handleMatriculaChange = async (event) =>{
-        const value = event.target.value;
-        const regex = /^[0-9\b]+$/;
 
-        if(value === "" || regex.test(value)){
-            setmatricula_claveempleado_solicitante(value);
-    
-            //Para validar la matricula
-            if(value !==""){
-                try{
-                const response = await PrestamoService.validarMatricula(value);
-                    if(response.status ===200){
-                        setmatriculaValida(true);
-                        MensajeEx("Matricula vigente");
-                        seterrorMatricula('');
-                        setisFieldDisabled(false);
-                    }
-                }catch(error){
-                    if(error.response&&error.response.status===400){
-                        setmatriculaValida(false);
-                        MensajeEr("Matricula no vigente");
-                        setisFieldDisabled(true);
-                    }else{
-                        seterrorMatricula("Error al validar");
-                        setisFieldDisabled(true);
-                    }
-                } 
-            }else{
-                setisFieldDisabled(true);
-            }
-        }else{
-            MensajeAd("Solo se permite numeros");
-        }
-    }
-
-    //Funcion para validar el material
-    const handleMaterialChange = async (event) =>{
-        const value = event.target.value;
-            setnombre_material(value);
-    
-            //Para validar el material libre
-            if(value !==""){
-                try{
-                const response = await PrestamoService.validarMaterial(value);
-                    if(response.status ===200){
-                        setmatriculaValida(true);
-                        MensajeEx("Material habilitado");
-                        seterrorMatricula('');
-                        setisFieldDisabled(false);
-                    }
-                }catch(error){
-                    if(error.response&&error.response.status===400){
-                        setmatriculaValida(false);
-                        MensajeEr("Material no valido");
-                        setisFieldDisabled(true);
-                    }else{
-                        seterrorMatricula("Error al validar");
-                        setisFieldDisabled(true);
-                    }
-                } 
-        }
-    }
-*/}
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
         event.preventDefault();
        
+        if(!clave || !nombre_material|| !numserie|| !marca|| !modelo) {
+            MensajeAd("Hay campos vacios");
+            return;
+        }
+        
         RegistroMaterialServices.RegistroMaterial({
             id_material:id_material,
             clave:clave,
@@ -134,16 +74,12 @@ function PantallaMaterialLaboratorio(){
             MensajeEx("Registro guardado con exito!");
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
-            setid_Prestamo(prevId => prevId +1);
+            setid_material(prevId => prevId +1);
+            }else{
+                MensajeEr("Hubo un error al registrar");
+                setshowErrorMessage(true);
+                setshowSuccessMessage(false);
             }
-        }).catch(error=>{
-            if(error.response.status === 400){
-                MensajeAd("Material prestado!");
-            }else if(error.response.status === 401){
-                MensajeEr("Error del servidor");
-            }
-            setshowErrorMessage(true);
-            setshowSuccessMessage(false);
         });
     }
 
@@ -177,7 +113,6 @@ function PantallaMaterialLaboratorio(){
     }
 
    
-
     //Funcion para obtener material y mostrar
     useEffect(() =>{
         const fetchMateriales = async () => {
@@ -233,13 +168,13 @@ function PantallaMaterialLaboratorio(){
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>matricula</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>nombre</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>categoria</td>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Numero de serie</th>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</th>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Marca</th>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Modelo</th>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Descripcion</th>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Estado</th>
-                <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Permiso de usuario</th>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Numero de serie</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoria</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Marca</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Modelo</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Descripcion</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Estado</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>Permiso de usuario</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -258,16 +193,16 @@ function PantallaMaterialLaboratorio(){
             <form action="/RegistroMaterial" method='POST'>
                 <div className=" inline-block  w-1/2 p-4">
                     <label htmlFor="clave" className="block ">Clave</label>
-                    <input type="text" name="" id="clave" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400 w-full"  />
+                    <input type="text" name="clave" id="clave" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400 w-full"  />
 
                     <label htmlFor="numserie" className="block">Numero de Serie</label>
-                    <input type="text" name="" id="numserie" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
+                    <input type="text" name="numserie" id="numserie" className="no-spin mt-1 border-gray-400 border-1 focus:border-green-400" />
 
                     <label htmlFor="modelo" className="block">Modelo</label>
-                    <input type="text" name="" id="modelo" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+                    <input type="text" name="modelo" id="modelo" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
 
                     <label htmlFor="id_estado" className="block">Estado</label>
-                    <select id="id_estado" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="id_estado" name="estado" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="0">Seleccione una opción</option>
                         <option value="1">Disponible</option>
                         <option value="2">Prestado</option>
@@ -277,7 +212,7 @@ function PantallaMaterialLaboratorio(){
                     </select>
 
                     <label htmlFor="id_categoria" className="block">Categoria</label>
-                    <select id="id_categoria" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="id_categoria" name="categoria" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="0">Seleccione una opción</option>
                         <option value="1">Laptop</option>
                         <option value="2">Mouse</option>
@@ -291,15 +226,15 @@ function PantallaMaterialLaboratorio(){
 
                 <div className="inline-block  w-1/2 p-4 mt-0">
                     <label htmlFor="nombre_material" className="block mt-0">Nombre</label>
-                    <input type="text" name="" id="nombre_material" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+                    <input type="text" name="nombre_material" id="nombre_material" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
                     
                     <label htmlFor="marca" className="block">Marca</label>
-                    <input type="text" name="" id="marca" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
+                    <input type="text" name="marca" id="marca" className="mt-1 border-gray-400 border-1 focus-ring-2 focus:border-green-400" />
 
                    
 
                     <label htmlFor="permiso" className="block">Permisos</label>
-                    <select id="permiso" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="permiso" name="permiso" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="null">Seleccione una opción</option>
                         <option value="Maestros">Maestros</option>
                         <option value="Alumnos">Alumnos</option>
@@ -307,7 +242,7 @@ function PantallaMaterialLaboratorio(){
                     </select>
 
                     <label htmlFor="id_ubicacion" className="block">Ubicacion</label>
-                    <select required id="id_ubicacion" name="" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select required id="id_ubicacion" name="id_ubicacion" class=" mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="0">Seleccione una opción</option>
                         <option value="1">Aula</option>
                         <option value="2">Laboratorio</option>
@@ -315,7 +250,8 @@ function PantallaMaterialLaboratorio(){
                         <option value="4">Almacen</option>
                     </select>
                     <label htmlFor="descripcion" className="block">Descripcion</label>
-                    <input type="text" name="" id="descripcion" className=" w-full p-2 border border-gray-300  resize-none h-6 transition-all duration-300 ease-in-out focus:h-40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    <input type="text" name="descripcion" id="descripcion" 
+                    className=" w-full p-2 border border-gray-300  resize-none h-6 transition-all duration-300 ease-in-out focus:h-40 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
 
                     
                 </div>

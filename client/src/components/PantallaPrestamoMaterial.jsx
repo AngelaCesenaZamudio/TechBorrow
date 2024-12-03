@@ -30,14 +30,6 @@ function PantallaPrestamoMaterial(){
 
     const toast = useRef(null);
 
-    //Ubicaciones por mostrar
-    const [ubicaciones] = useState ([
-        {id: 1, nombre:"Laboratorio"},
-        {id: 2, nombre: "Aula"},
-        {id: 3, nombre: "Cubiculos"},
-        {id: 4, nombre: "Almacen"},
-    ])
-
     //Mensaje de confirmacion de exito
     const MensajeEx = (mensaje) =>{
         toast.current.show({severity: 'success', summary: 'Exito', detail: mensaje, life:3000});
