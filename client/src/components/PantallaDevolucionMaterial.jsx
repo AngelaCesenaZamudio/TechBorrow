@@ -279,10 +279,10 @@ function PantallaDevolucionMaterial(){
                 <tr>
 
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans' colSpan="2">Datos de devolución</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de devolución</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoría</th> 
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Clave</th>
                 </tr>
             </thead>
             <tbody>
@@ -290,10 +290,9 @@ function PantallaDevolucionMaterial(){
                 <tr key={index}>    
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.horavencimiento}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(devoluciones.fechadevolucion, devoluciones.horadevolucion)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.estado}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.nombre_material}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.categoria}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.matricula_claveempleado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.clave}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>

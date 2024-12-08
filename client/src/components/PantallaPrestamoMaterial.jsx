@@ -133,6 +133,8 @@ function PantallaPrestamoMaterial(){
                 setnombre_materialValido(true);
                 MensajeEx("El material esta disponible");
                 setnombre_material(value);
+
+                calcularHoravencimiento(fecharegistro, horaregistro);
             }else{
                 MensajeAd("El material no esta disponible");
             }
@@ -154,13 +156,13 @@ function PantallaPrestamoMaterial(){
     const agregar =(event)=>{
         event.preventDefault();
         if(!matricula_claveempleado || !nombre_material) {
-            MensajeAd("Hay campos vacios");
-            return;
+            MensajeAd("Hay campos vacios, por favor completa todos los campos");
+           return;
         }
 
-        calcularHoravencimiento(fecha,hora);
+        calcularHoravencimiento(fecharegistro,horaregistro);
 
-        setTimeout(()=>{
+        
         console.log("fecha vencimiento en agregar: "+fechavencimiento);
         console.log("hora vencimiento en agregar:"+horavencimiento);
 
@@ -203,8 +205,7 @@ function PantallaPrestamoMaterial(){
             setshowErrorMessage(true);
             setshowSuccessMessage(false);
         });
-    }, 500);
-    }
+    };
 
     //Funcion que genera la fecha
     useEffect(() => {
@@ -277,11 +278,12 @@ function PantallaPrestamoMaterial(){
         setcomentarios('');
         setmatriculaValida(false);
         setisFieldDisabled(true);
+        sethoravencimiento('');
     }
 
     //Funcion para acomodar la fecha y hora en una sola variable y mostrarla
-    const combinarFechaHora = (fecha, hora) =>{
-        const combinada = `${fecha.split('T')[0]}T${hora}`;
+    const combinarFechaHora = (fecharegistro, horaregistro) =>{
+        const combinada = `${fecharegistro.split('T')[0]}T${horaregistro}`;
         const fechaHora = new Date(combinada);
 
         const opcionFecha = {year: 'numeric', month: '2-digit', day: '2-digit'};
@@ -327,10 +329,9 @@ function PantallaPrestamoMaterial(){
         setfechavencimiento(fechavencimiento.split(' ')[0]);
         sethoravencimiento(fechavencimiento.split(' ')[1]);
 
-        return fechavencimiento;
+        return fechavencimiento, horavencimiento;
     };
     
-
     return(
         <div>
         <Toast ref={toast} />
@@ -354,22 +355,21 @@ function PantallaPrestamoMaterial(){
         <table className='min-w-full border-collapse'>
             <thead>
                 <tr>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans' colSpan="2">Datos de préstamo</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de préstamo</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Categoría</th> 
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Clave</th>
                 </tr>
             </thead>
             <tbody>
                 {prestamos.map((prestamos,index) => (
                 <tr key={index}>    
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(prestamos.fecharegistro, prestamos.horaregistro)}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.estado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.horavencimiento}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.categoria}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.clave_prestamo}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -384,7 +384,7 @@ function PantallaPrestamoMaterial(){
         </table> 
         {/*Desplegable para realizar el prestamo */}
         <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Préstamo</span>}visible={showDialog}
-            style={{width:'40vw'}}  
+            style={{width:'35vw'}}  
             onHide={()=>setShowDialog(false)}>
                 <form onSubmit={(event) => agregar(event)}>
                 <h1 className='flex justify-center font-bold text-xl mb-1'>Datos del solicitante</h1>  
@@ -393,13 +393,13 @@ function PantallaPrestamoMaterial(){
                     <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block whitespace-nowrap overflow-hidden text-ellipsis'>
                     Matrícula/Número de empleado </label>
                     <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
-                    className='border border-gray-300 rounded-md p-2 w-70' required/>
+                    size= {Math.max(matricula_claveempleado.length, 15)} className='border border-gray-300 rounded-md p-2 w-70' required/>
                     </div>
 
                     <div className='w-1/2 mb-3 px-6'>
                     <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block'>Nombre del solicitante </label>
                     <input type='text' id='nombre_solicitante' className='border border-gray-300 rounded-md p-2 w-70 text-center' value={nombre_solicitante} 
-                    onChange={(e) => setnombre_solicitante(e.target.value)} disabled/>
+                     size= {Math.max(nombre_solicitante.length,5)} onChange={(e) => setnombre_solicitante(e.target.value)} disabled/>
                      </div>
                     </div>
 
@@ -408,29 +408,33 @@ function PantallaPrestamoMaterial(){
                 <div className='mb-3 text-center'>
                     <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
                     <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
-                    className='border border-gray-300 rounded-md p-2 w-70 text-center' required/> 
+                     className='border border-gray-300 rounded-md p-2 w-70 text-center' required/> 
             </div>
             </div>
     
-            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de préstamo</h1>  
+            <h1 className='flex justify-center font-bold text-xl'>Datos de préstamo</h1>  
             <div className='flex flex-col items-center border'> 
-                <div className='w-3/4 mb-2'>
+                <div className='w-3/4 mb-3'>
                     <label htmlFor='comentarios' className='text-l font-semibold mb-2 block'>Comentarios</label>
                     <input type='text' id='comentarios' value={comentarios} onChange={handleinputChange} 
                     rows="1"
                     className='border border-gray-300 rounded-md p-2 w-full h-10e resize-y focus:h-32 transition-all duration-300' /> 
             </div>
 
-            <div className='w-full h-full flex justify-center gap-8'>   
-             <div className='flex flex-col items-center'>
+            <div className='w-full flex justify-between gap-2'>   
+             <div className='flex flex-col items-center w-1/3'>
                     <label htmlFor='Fecha' className='text-l font-semibold mb-1'>Fecha</label>      
                     <input id='fecharegistro' type='date' value={fecharegistro} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
              </div>
 
-               <div className='flex flex-col items-center'>
+               <div className='flex flex-col items-center w-1/3'>
                <label htmlFor='Hora' className='text-l font-semibold mb-1'>Hora</label>  
-               <input id='horaregistro' type='time' value={horaregistro} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
+               <input id='horaregistro' type='time' value={horaregistro} readOnly className='w-full p-1 rounded-md text-center'/>
+               </div>
 
+               <div className='flex flex-col items-center w-1/3'>
+               <label htmlFor='Horavencimiento' className='text-l font-semibold mb-1'>Hora vencimiento</label>  
+               <input id='horavencimiento' type='time' value={horavencimiento} readOnly className='w-full p-1 rounded-md text-center'/>
                </div>
               </div>
              </div>
