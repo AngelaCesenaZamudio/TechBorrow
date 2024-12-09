@@ -21,6 +21,8 @@ router.post('/RegistroPrestamo', (req,res) => {
     const fechavencimiento = req.body.fechavencimiento;
     const horavencimiento = req.body.horavencimiento;
 
+    console.log("Entro a prestamo");
+
     const querySolicitante = 'SELECT id_solicitante FROM solicitante WHERE matricula_claveempleado =?';
     BD.query(querySolicitante, [matricula_claveempleado], (err,results) =>{
         if(err){
@@ -33,6 +35,7 @@ router.post('/RegistroPrestamo', (req,res) => {
         }
 
         const id_solicitante = results[0].id_solicitante;
+        console.log("id_solicitante en registro: ",id_solicitante);
 
     //Metodo que utilizamos para tomar el id del material y mandarlo al prestamo    
     const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
@@ -47,19 +50,7 @@ router.post('/RegistroPrestamo', (req,res) => {
         }
 
         const id_material = results[0].id_material;
-
-        const queryIDPrestamo= 'SELECT id_prestamo FROM prestamo WHERE id_material =?';
-        BD.query(queryIDPrestamo, [id_material], (err,results) =>{
-            if(err){
-                console.error("Error al obtener el id_material",err);
-                return res.status(500).json({message: "Error al obtener el id_material", err: err});
-            }
-    
-            if(results.length===0){
-                return res.status(404).json({message: "Material no encontrado"});
-            }
-    
-            const id_prestamo = results[0].id_prestamo;    
+        console.log("id_material en registro: ",id_material);
 
         const queryIDubicacion= 'SELECT id_ubicacion FROM material WHERE id_material =?';
         BD.query(queryIDubicacion, [id_material], (err,results) =>{
@@ -72,16 +63,13 @@ router.post('/RegistroPrestamo', (req,res) => {
                 return res.status(404).json({message: "Ubicacion no encontrada"});
             }
         
-                const id_ubicacion = results[0].id_ubicacion;
-            
-        const clave_prestamo = `PR-${id_material}-${id_solicitante}-${fecharegistro}-${id_prestamo}-${id_ubicacion}`;
-
-        console.log("clave en route: ", clave_prestamo);
+            const id_ubicacion = results[0].id_ubicacion;
+            console.log("id_ubicacion en registro: ",id_ubicacion);
 
         //Metodo para hacer la insercion del prestamo a la tabla
-        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, horavencimiento, clave_prestamo)'+
-        'VALUES (?,?,?,?,?,?,?,?)';
-        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, horavencimiento, clave_prestamo], (err, results)=>{
+        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, horavencimiento)'+
+        'VALUES (?,?,?,?,?,?,?)';
+        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, horavencimiento], (err, results)=>{
             if(err){
                 console.error("Error al registrar el prestamo: ",err);
                 return res.status(500).json({message: "Error al registrar el prestamo", err: err});
@@ -90,6 +78,34 @@ router.post('/RegistroPrestamo', (req,res) => {
             console.log("PRESTAMO REGISTRADO")
             
         })
+
+        const queryIdPrestamo = 'SELECT id_prestamo FROM prestamo WHERE id_material =?';
+        BD.query(queryIdPrestamo, [id_material], (err, results) =>{
+            if(err){
+                console.error("Error al obtener el id de prestamo", err);
+                return res.status(500).json({message: "Error al obtener el id de prestamo", err: err});
+            }
+
+            if(results.length===0){
+                return res.status(404).json({message: "id de prestamo no encontrado"});
+            }
+    
+            const id_prestamo = results[0].id_prestamo;   
+            console.log("id_prestamo en registro: ",id_prestamo); 
+
+        const clave_prestamo = `PR-${id_material}-${id_solicitante}-${fecharegistro}-${id_prestamo}-${id_ubicacion}`;
+        console.log("clave en route: ", clave_prestamo);
+     
+        const queryUpdatePrestamo = 'UPDATE prestamo SET clave_prestamo = ? WHERE id_prestamo =?';
+        BD.query(queryUpdatePrestamo, [clave_prestamo, id_prestamo]), (err)=>{
+        if(err){
+            console.error("Error al actualizar la clave: ", err);
+            return res.status(500).json({message: "Error al actualizar clave de prestamo",err:err});
+        }  
+
+        res.status(200).json({message: "Prestamo registrado con exito"});
+        console.log("Prestamo registrado con exito");
+        }
     })
     })
     })
@@ -102,8 +118,7 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
         const {nombre_material} = req.body;
         const estado = "Prestado";
 
-        const queryMaterial = 'SELECT id_material FROM material '+ 
-        'WHERE nombre_material =?';
+        const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
 
         BD.query(queryMaterial, [nombre_material], (err,results) =>{
         if(err){

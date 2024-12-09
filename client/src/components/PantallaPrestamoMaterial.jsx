@@ -29,6 +29,10 @@ function PantallaPrestamoMaterial(){
     const [showDialog, setShowDialog] = useState(false);
     const [comentarios, setcomentarios] = useState("");
     const toast = useRef(null);
+    const hasDebt = true;
+    const hasActiveLoan = false;
+
+    const isDesabled = hasDebt || hasActiveLoan;
 
 
     //Mensaje de confirmacion de exito
@@ -69,15 +73,12 @@ function PantallaPrestamoMaterial(){
         if(value.length>=7){
         try{
             const response = await PrestamoService.validarMatricula_Claveempleado(value);
-            console.log("Despues de la consulta: ",response);
             if(response.status===200){
                 setmatriculaValida(true);
                 setmatricula_claveempleado(value);
                 setnombre_solicitante(response.data.nombre);
                 seterrorMatricula('');
                 setisFieldDisabled(false);
-                console.log("estado matricula: ",matriculaValida);
-                console.log("Mensaje db: ",response.data.mensaje);
             }
         }catch(error){
             console.log("Error en el client: ",error);
@@ -89,13 +90,15 @@ function PantallaPrestamoMaterial(){
                 if(error.response.data === "El solicitante tiene adeudos pendientes."){
                    //Solicitante con adeudos
                     MensajeEr("El solicitante tiene adeudos pendientes.");
-
+                    setisFieldDisabled(true);
                 }else if(error.response.data==="El solicitante ya tiene un prestamo activo"){
                     //Solicitante con prestamos activo
                     MensajeEr("El solicitante ya tiene un prestamo activo");
+                    setisFieldDisabled(true);
                 }
                 else{
                     MensajeEr("Solicitante no activo o problemas con adeudos");
+                    setisFieldDisabled(true);
                 }
             }else{
                 MensajeEr("Error al validar");
@@ -188,6 +191,7 @@ function PantallaPrestamoMaterial(){
             setid_prestamo(prevId => prevId +1);
 
             PrestamoService.actualizarEstadoMaterial(nombre_material)
+
             .then(response =>{
                 MensajeEx("Estado de material actualizado");
             })
@@ -357,7 +361,7 @@ function PantallaPrestamoMaterial(){
                 <tr>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de préstamo</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Material</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Clave</th>
                 </tr>
@@ -370,14 +374,14 @@ function PantallaPrestamoMaterial(){
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.clave_prestamo}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
+                {/*<td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
                     </button>
                     <button className='focus:outline-none ml-6'>
                         <img src='./src/imagenes/eliminar.png' alt='Modificar' className='h-5 w-5 inline<'/>
                     </button>
-                </td>
+                </td>*/}
                 </tr>
                 ))}
             </tbody>
@@ -408,7 +412,7 @@ function PantallaPrestamoMaterial(){
                 <div className='mb-3 text-center'>
                     <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
                     <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
-                     className='border border-gray-300 rounded-md p-2 w-70 text-center' required/> 
+                     disabled={isFieldDisabled} className='border border-gray-300 rounded-md p-2 w-70 text-center' required/> 
             </div>
             </div>
     
@@ -417,8 +421,8 @@ function PantallaPrestamoMaterial(){
                 <div className='w-3/4 mb-3'>
                     <label htmlFor='comentarios' className='text-l font-semibold mb-2 block'>Comentarios</label>
                     <input type='text' id='comentarios' value={comentarios} onChange={handleinputChange} 
-                    rows="1"
-                    className='border border-gray-300 rounded-md p-2 w-full h-10e resize-y focus:h-32 transition-all duration-300' /> 
+                    rows="1" className='border border-gray-300 rounded-md p-2 w-full h-10e resize-y focus:h-32 transition-all duration-300' 
+                    disabled={isFieldDisabled}/> 
             </div>
 
             <div className='w-full flex justify-between gap-2'>   
@@ -441,8 +445,10 @@ function PantallaPrestamoMaterial(){
 
             {/*Botones del codigo con acciones, mandar a services y limpiar campos*/}
             <div className='flex justify-center mt-6 space-x-4'>  
-            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}>Guardar</button>
-            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}>Borrar</button>
+            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}
+            disabled={isFieldDisabled}>Guardar</button>
+            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}
+            disabled={isFieldDisabled}>Borrar</button>
     
                 </div>        
             </form>
