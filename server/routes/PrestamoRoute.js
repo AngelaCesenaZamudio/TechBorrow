@@ -118,7 +118,8 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
         const {nombre_material} = req.body;
         const estado = "Prestado";
 
-        const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
+        const queryMaterial = 'SELECT id_material FROM material '+ 
+        'WHERE nombre_material =?';
 
         BD.query(queryMaterial, [nombre_material], (err,results) =>{
         if(err){

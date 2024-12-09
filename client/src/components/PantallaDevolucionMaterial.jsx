@@ -11,19 +11,15 @@ import {Dialog} from 'primereact/dialog';
 import debounce from 'lodash.debounce';
 
 function PantallaDevolucionMaterial(){ 
-    const [id_prestamo,setid_prestamo] = useState(0);
-    const [id_material, setid_material] = useState("");
-    const [matricula_claveempleado,setmatricula_claveempleado] = useState("");
+    const [id_devolucion, setid_devolucion] = useState('');
     const [nombre_material,setnombre_material] = useState("");
-    const [nombre_solicitante, setnombre_solicitante] = useState("");
-    const [fechavencimiento,setfechavencimiento] = useState("");
     const [horavencimiento,sethoravencimiento] = useState("");
     const [fechadevolucion,setfechadevolucion] = useState("");
     const [horadevolucion,sethoradevolucion] = useState("");
     const [showSuccessMessage, setshowSuccessMessage] = useState(false);
     const [showErrorMessage, setshowErrorMessage] = useState(false);
     const [devoluciones, setdevoluciones] = useState([]);
-    const [matriculaValida, setmatriculaValida] = useState(false);
+    const [materialValido, setmaterialValido] = useState(false);
     const [errorMatricula, seterrorMatricula] = useState('')
     const [isFieldDisabled, setisFieldDisabled] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
@@ -47,97 +43,83 @@ function PantallaDevolucionMaterial(){
     }
 
     //Funcion para que no acepte simbolos
-        const handleMatriculaChange = (event) =>{
+        const handleMaterialChange = (event) =>{
         const value = event.target.value;
-        const regex = /^[0-9\b]+$/;
+        const regex = /^[a-zA-Z0-9\s\b]+$/;
 
         if(value === "" || regex.test(value)){
-            setmatricula_claveempleado(value);
+            setnombre_material(value);
 
             if(value!==""){
-                debounceValidaMatricula(value);
+                debounceMaterial(value);
             }else{
                 setisFieldDisabled(true);
             }
         }else{
-            MensajeAd("Solo se permite numeros");
+            console.log("Evaluado: ",value);
+            MensajeAd("Simbolos no permitidos");
         }
     };
 
-    //Metodo que valida la matricula y devuelve prestamo si tiene activo
-    const debounceValidaMatricula = debounce(async(value) => {
-        if(value.length>=7){
-        try{
-            const response = await DevolucionService.obtenerDevolucionPorMatricula_Claveempleado(value);
-            console.log("Despues de la consulta: ",response);
-            if(response.status===200){
-                setmatriculaValida(true);
-                setmatricula_claveempleado(value);
-                setnombre_solicitante(response.data.nombre);
-                setnombre_material(response.data.nombre_material);
-                seterrorMatricula('');
-                setisFieldDisabled(false);
-            }
-        }catch(error){
-            console.log("Error en el client: ",error);
-            if(error.response){
-                //Solicitante no registrado
-                if(error.response.status===404){
-                MensajeEr("No cuenta con un prestamo activo");
-            }else{
-                MensajeEr("Error al validar");
-            }
+    //Validar que el material tiene prestamo
+    const debounceMaterial = debounce(async(value) =>{
+    if(value.length>=4){    
+    try{
+        const response = await DevolucionService.validarMaterial(value);
+        console.log("Servidor: ",response);
+        console.log("Recibido: ",response.data.message);
+        if(response.status===200 && response.data.message ==="Material con prestamo activo"){
+            setmaterialValido(true);
+            MensajeEx("El material tiene un préstamo activo");
+            setnombre_material(value);
+            sethoravencimiento(response.data.horavencimiento); 
+        }else{
+            MensajeEr("El material no tiene prestamos");
+            sethoravencimiento("");
         }
+    }catch(error){
+        if(error.response){
+            //Material no registrado
+            if(error.response.status===404){
+            MensajeEr("Material no registrado");
+        }else{
+            MensajeEr("Error al validar");
         }
+    }else{
+        MensajeEr("Error de conexion");
     }
-    },500);
-
-    //Funcion para que actualice la matricula
-    useEffect(()=>{
-        if(matriculaValida){
-            MensajeEx("Solicitante con prestamo activo");    
-        }
-    }, [matriculaValida, nombre_solicitante]);
-    
-    const handleMaterialChange = (event) =>{
-        const value = event.target.value;
-        setnombre_material(value);
-
-        if(value.trim() !== "" && value.length>=5){
-            debounceMaterial(value);
-        }
-    };
+    }
+    }
+},500); 
 
     //Funcion para mandar los datos al services
     const agregar =(event)=>{
         event.preventDefault();
-        if(!matricula_claveempleado || !nombre_material) {
+        if(!nombre_material) {
             MensajeAd("Hay campos vacios");
             return;
         }
 
-        console.log("Fecha en int: ",fechadevolucion);
-        console.log("hora en int: ",horadevolucion);
-
-        DevolucionService.RegistroDevolucion({
-            id_prestamo:id_prestamo,
-            matricula_claveempleado:matricula_claveempleado,
+        const devoluciondata = {
+            id_devolucion:id_devolucion,
             nombre_material:nombre_material,
             estado:"Finalizado",
             comentarios:comentarios,
-            fechavencimiento:fechavencimiento,
             horavencimiento:horavencimiento,
             fechadevolucion:fechadevolucion,
             horadevolucion:horadevolucion
-        }).then(async (response)=>{
-            if(response.status === 200){
+        }
+
+        DevolucionService.RegistroDevolucion(devoluciondata)
+        .then(async (response)=>{
+            if(response.status === 200 ){
             MensajeEx("Devolucion guardada con exito!");
-            limpiarCampos();
             setshowSuccessMessage(true);
             setshowErrorMessage(false);
-            setid_prestamo(prevId => prevId +1);
+            setid_devolucion(prevId => prevId +1);
+            limpiarCampos();
 
-           DevolucionService.actualizarEstadoMaterial(nombre_material)
+            DevolucionService.actualizarEstadoMaterial(nombre_material)
             .then(response =>{
                 MensajeEx("Estado de material actualizado");
             })
@@ -155,10 +137,8 @@ function PantallaDevolucionMaterial(){
         }
             
         }).catch(error=>{
-            if(error.response.status === 400){
-                MensajeAd("Material prestado!");
-            }else if(error.response.status === 401){
-                MensajeEr("Error del servidor");
+            if(error.response.status === 401){
+            MensajeEr("Error del servidor");
             }
             setshowErrorMessage(true);
             setshowSuccessMessage(false);
@@ -232,11 +212,10 @@ function PantallaDevolucionMaterial(){
 
     //Funcion para limpiar campos
     const limpiarCampos=()=>{
-        setmatricula_claveempleado('');
-        setnombre_solicitante('');
         setnombre_material('');
         setcomentarios('');
-        setmatriculaValida(false);
+        sethoravencimiento('');
+        setmaterialValido(false);
         setisFieldDisabled(true);
     }
 
@@ -277,10 +256,9 @@ function PantallaDevolucionMaterial(){
         <table className='min-w-full border-collapse'>
             <thead>
                 <tr>
-
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de devolución</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Nombre</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Material</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Clave</th>
                 </tr>
@@ -292,7 +270,7 @@ function PantallaDevolucionMaterial(){
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{combinarFechaHora(devoluciones.fechadevolucion, devoluciones.horadevolucion)}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.nombre_material}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.matricula_claveempleado}</td>
-                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.clave}</td>
+                <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{devoluciones.clave_devolucion}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
@@ -307,33 +285,17 @@ function PantallaDevolucionMaterial(){
         </table> 
         {/*Desplegable para realizar el prestamo */}
         <Dialog header={<span style={{fontFamily:'sans-serif', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>Devolución</span>}visible={showDialog}
-            style={{width:'40vw'}}  
+            style={{width:'35vw'}}  
             onHide={()=>setShowDialog(false)}>
                 <form onSubmit={(event) => agregar(event)}>
-                <h1 className='flex justify-center font-bold text-xl mb-1'>Datos del solicitante</h1>  
-                    <div className='flex justify-between mb-3 border'>
-                    <div className='w-1/2 mb-3 px-6'>
-                    <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block whitespace-nowrap overflow-hidden text-ellipsis'>
-                    Matrícula/Clave de empleado </label>
-                    <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
-                    className='border border-gray-300 rounded-md p-2 w-70' required/>
-                    </div>
-
-                    <div className='w-1/2 mb-3 px-6'>
-                    <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block'>Nombre del solicitante </label>
-                    <input type='text' id='nombre_solicitante' className='border border-gray-300 rounded-md p-2 w-70 text-center' value={nombre_solicitante} 
-                    onChange={(e) => setnombre_solicitante(e.target.value)} disabled/>
-                     </div>
-                    </div>
-
-            <h1 className='flex justify-center font-bold text-xl mb-1'>Datos del material</h1>      
-            <div className='flex justify-center mb-3 border '> 
+                <h1 className='flex justify-center font-bold text-xl mb-1'>Datos del material</h1>      
+                 <div className='flex justify-center mb-3 border '> 
                 <div className='mb-3 text-center'>
                     <label htmlFor='nombre_material' className='text-l font-semibold mb-1 block text-center'>Nombre del material: </label>
-                    <input type='text' id='nombre_material' value={nombre_material} onChange={(e)=> setnombre_material(e.target.value)}
-                    className='border border-gray-300 rounded-md p-2 w-70 text-center' disabled/> 
-            </div>
-            </div>
+                    <input type='text' id='nombre_material' value={nombre_material} onChange={handleMaterialChange}
+                    className='border border-gray-300 rounded-md p-2 w-70 text-center'/> 
+                 </div>
+                </div>    
     
             <h1 className='flex justify-center font-bold text-xl mb-1'>Datos de devolución</h1>  
             <div className='flex flex-col items-center border'> 
@@ -344,17 +306,22 @@ function PantallaDevolucionMaterial(){
                     className='border border-gray-300 rounded-md p-2 w-full h-10e resize-y focus:h-32 transition-all duration-300' /> 
             </div>
 
-            <div className='w-full h-full flex justify-center gap-8'>   
-             <div className='flex flex-col items-center'>
+            <div className='w-full flex justify-between gap-2'> 
+             <div className='flex flex-col items-center w-1/3'>
+               <label htmlFor='horavencimiento' className='text-l font-semibold mb-1'>Hora vencimiento</label>  
+               <input id='horavencimiento' type='time' value={horavencimiento} readOnly className='w-full p-1 rounded-md text-center'/>
+               </div>
+
+             <div className='flex flex-col items-center w-1/3'>
                     <label htmlFor='Fecha' className='text-l font-semibold mb-1'>Fecha</label>      
-                    <input id='fechadevolucion' type='date' value={fechadevolucion} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
+                    <input id='fecharegistro' type='date' value={fechadevolucion} readOnly className='p-1 border-gray-300 rounded-md text-center'/>
              </div>
 
-               <div className='flex flex-col items-center'>
+               <div className='flex flex-col items-center w-1/3'>
                <label htmlFor='Hora' className='text-l font-semibold mb-1'>Hora</label>  
-               <input id='horadevolucion' type='time' value={horadevolucion} readOnly className='w-full p-1 border border-gray-300 rounded-md text-center'/>
-
+               <input id='horadevolucion' type='time' value={horadevolucion} readOnly className='w-full p-1 rounded-md text-center'/>
                </div>
+
               </div>
              </div>
 
@@ -362,12 +329,11 @@ function PantallaDevolucionMaterial(){
             <div className='flex justify-center mt-6 space-x-4'>  
             <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}>Guardar</button>
             <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}>Borrar</button>
-    
-                </div>        
-            </form>
-            </Dialog>
+            </div>        
+        </form>
+        </Dialog>
         </div>  
-        </div>
+    </div>
     );
 }
 
