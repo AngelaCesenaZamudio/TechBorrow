@@ -1,39 +1,36 @@
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-import Login from './components/Login';
-import Header from './components/Header.jsx';
-import Menu from './components/Menu.jsx';
-import PantallaPrestamoMaterial from './components/PantallaPrestamoMaterial.jsx';
-import Footer from './components/footer.jsx';
-import MenuServicios from './components/MenuServicios.jsx';
-import PantallaMaterialLaboratorio from './components/PantallaMaterialLaboratorio.jsx';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import Login from "./components/Login";
+import Header from "./components/Header";
+import Menu from "./components/Menu";
+import PantallaPrestamoMaterial from "./components/PantallaPrestamoMaterial";
+import Footer from "./components/footer";
+import MenuServicios from "./components/MenuServicios";
+import PantallaMaterialLaboratorio from "./components/PantallaMaterialLaboratorio";
 
 function App() {
     return (
         <Router>
-
-            <div className='flex flex-col min-h-screen'>
+            <div className="flex flex-col min-h-screen">
                 <HeaderWrapper />
-                <main className='flex-grow'> 
-            <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/Menu" element={<Menu />} />
-                <Route path='/MenuServicios' element={<MenuServicios />} />
-                <Route path="/PantallaPrestamoMaterial" element={<PantallaPrestamoMaterial />} />
-                <Route path="/PantallaMaterialLaboratorio" element={<PantallaMaterialLaboratorio />} />
-            </Routes>
-            </main>
-            <Footer />
+                <main className="flex-grow">
+                    <Routes>
+                        <Route path="/" element={<Login />} />
+                        <Route path="/Menu" element={<Menu />} />
+                        <Route path="/MenuServicios" element={<MenuServicios />} />
+                        <Route path="/PantallaPrestamoMaterial" element={<PantallaPrestamoMaterial />} />
+                        <Route path="/PantallaMaterialLaboratorio" element={<PantallaMaterialLaboratorio />} />
+                    </Routes>
+                </main>
+                <Footer />
             </div>
         </Router>
     );
 }
 
-//Componente para que determinar donde si mostrar el header
-function HeaderWrapper(){
+function HeaderWrapper() {
     const location = useLocation();
-
-    //Con entro mostrara el header en las pantallas que si queremos, excepto el login
-    return location.pathname !=='/' ? <Header /> : null;
+    return location.pathname !== "/" ? <Header /> : null;
 }
 
 export default App;

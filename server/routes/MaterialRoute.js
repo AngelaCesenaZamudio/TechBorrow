@@ -1,91 +1,88 @@
 const express = require("express");
 const router = express.Router();
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
+require("dotenv").config();
 
-// Conexión a la base de datos
-const BD = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "techborrow"
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "root",
+    database: process.env.DB_NAME || "techborrow",
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
 });
 
-// Ruta para obtener todos los materiales
-router.get("/obtenerMateriales", (_req, res) => {
-  const query = `
-      SELECT 
-          m.id_material, m.clave, m.id_ubicacion, m.nombre_material, m.numserie,
-          c.categoria AS categoria, m.marca, m.modelo, e.estado AS estado,
-          m.descripcion, m.permiso, m.fechaRegistro
-      FROM material AS m
-      LEFT JOIN categoria AS c ON m.id_categoria = c.id_categoria
-      LEFT JOIN estado AS e ON m.id_estado = e.id_estado;
-  `;
-  BD.query(query, (err, results) => {
-      if (err) {
-          console.error("Error al obtener materiales:", err);
-          return res.status(500).send("Error al obtener materiales");
-      }
-      res.status(200).json(results);
-  });
+router.get("/obtenerMateriales", async (_req, res) => {
+    try {
+        const [results] = await pool.query(`
+            SELECT 
+                m.id_material, m.clave, m.id_ubicacion, m.nombre_material, m.numserie,
+                c.categoria AS categoria, m.marca, m.modelo, e.estado AS estado,
+                m.descripcion, m.permiso, m.fechaRegistro
+            FROM material AS m
+            LEFT JOIN categoria AS c ON m.id_categoria = c.id_categoria
+            LEFT JOIN estado AS e ON m.id_estado = e.id_estado;
+        `);
+        res.status(200).json(results);
+    } catch (error) {
+        console.error("Error al obtener materiales:", error);
+        res.status(500).json({ error: "Error al obtener materiales" });
+    }
 });
 
-// Ruta para registrar un nuevo material
-router.post("/materiales", (req, res) => {
+router.post("/materiales", async (req, res) => {
     const {
         clave, id_ubicacion, nombre_material, numserie, id_categoria, 
         marca, modelo, id_estado, descripcion, permiso, fechaRegistro
     } = req.body;
 
     if (!clave || !nombre_material || !id_categoria) {
-        return res.status(400).json({ message: "Faltan campos obligatorios" });
+        return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
 
-    const query = `INSERT INTO material (clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    BD.query(query, [clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro], (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error al registrar material");
-        }
-        res.status(201).send("Material registrado exitosamente");
-    });
+    try {
+        await pool.query(`
+            INSERT INTO material (clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro]);
+        res.status(201).json({ message: "Material registrado exitosamente" });
+    } catch (error) {
+        console.error("Error al registrar material:", error);
+        res.status(500).json({ error: "Error al registrar material" });
+    }
 });
 
-// Ruta para modificar un material
-router.put("/materiales/:id", (req, res) => {
+router.put("/materiales/:id", async (req, res) => {
     const id_material = req.params.id;
     const {
         clave, id_ubicacion, nombre_material, numserie, id_categoria, 
         marca, modelo, id_estado, descripcion, permiso, fechaRegistro
     } = req.body;
 
-    const query = `UPDATE material 
-                   SET clave = ?, id_ubicacion = ?, nombre_material = ?, numserie = ?, id_categoria = ?, marca = ?, modelo = ?, id_estado = ?, descripcion = ?, permiso = ?, fechaRegistro = ? 
-                   WHERE id_material = ?`;
-
-    BD.query(query, [clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro, id_material], (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error al modificar material");
-        }
-        res.status(200).send("Material modificado exitosamente");
-    });
+    try {
+        await pool.query(`
+            UPDATE material 
+            SET clave = ?, id_ubicacion = ?, nombre_material = ?, numserie = ?, id_categoria = ?, marca = ?, modelo = ?, id_estado = ?, descripcion = ?, permiso = ?, fechaRegistro = ?
+            WHERE id_material = ?
+        `, [clave, id_ubicacion, nombre_material, numserie, id_categoria, marca, modelo, id_estado, descripcion, permiso, fechaRegistro, id_material]);
+        res.status(200).json({ message: "Material modificado exitosamente" });
+    } catch (error) {
+        console.error("Error al modificar material:", error);
+        res.status(500).json({ error: "Error al modificar material" });
+    }
 });
 
-// Ruta para eliminar un material
-router.delete("/materiales/:id", (req, res) => {
+router.delete("/materiales/:id", async (req, res) => {
     const id_material = req.params.id;
 
-    const query = `DELETE FROM material WHERE id_material = ?`;
-    BD.query(query, [id_material], (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error al eliminar material");
-        }
-        res.status(200).send("Material eliminado exitosamente");
-    });
+    try {
+        await pool.query(`DELETE FROM material WHERE id_material = ?`, [id_material]);
+        res.status(200).json({ message: "Material eliminado exitosamente" });
+    } catch (error) {
+        console.error("Error al eliminar material:", error);
+        res.status(500).json({ error: "Error al eliminar material" });
+    }
 });
 
 module.exports = router;
