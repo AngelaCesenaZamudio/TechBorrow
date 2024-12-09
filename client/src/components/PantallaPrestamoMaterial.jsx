@@ -362,7 +362,7 @@ function PantallaPrestamoMaterial(){
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Datos de préstamo</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Hora de vencimiento</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Material</th>
-                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Número de empleado</th>
+                    <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Matrícula/Clave de empleado</th>
                     <th className='border border-gray-100 p-2 text-center text-sm font-sans'>Clave</th>
                 </tr>
             </thead>
@@ -395,7 +395,7 @@ function PantallaPrestamoMaterial(){
                     <div className='flex justify-between mb-3 border'>
                     <div className='w-1/2 mb-3 px-6'>
                     <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block whitespace-nowrap overflow-hidden text-ellipsis'>
-                    Matrícula/Número de empleado </label>
+                    Matrícula/Clave de empleado </label>
                     <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
                     size= {Math.max(matricula_claveempleado.length, 15)} className='border border-gray-300 rounded-md p-2 w-70' required/>
                     </div>
@@ -447,8 +447,7 @@ function PantallaPrestamoMaterial(){
             <div className='flex justify-center mt-6 space-x-4'>  
             <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}
             disabled={isFieldDisabled}>Guardar</button>
-            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}
-            disabled={isFieldDisabled}>Borrar</button>
+            <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}>Borrar</button>
     
                 </div>        
             </form>

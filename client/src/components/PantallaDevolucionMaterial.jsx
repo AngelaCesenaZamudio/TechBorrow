@@ -314,7 +314,7 @@ function PantallaDevolucionMaterial(){
                     <div className='flex justify-between mb-3 border'>
                     <div className='w-1/2 mb-3 px-6'>
                     <label htmlFor='matricula_numeroempleado' className='text-l font-semibold mb-2 block whitespace-nowrap overflow-hidden text-ellipsis'>
-                    Matrícula/Número de empleado </label>
+                    Matrícula/Clave de empleado </label>
                     <input type='text' id='matricula_claveempleado' value={matricula_claveempleado} onChange={handleMatriculaChange} 
                     className='border border-gray-300 rounded-md p-2 w-70' required/>
                     </div>
