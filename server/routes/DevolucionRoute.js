@@ -46,7 +46,7 @@ router.post('/RegistroDevolucion', (req,res) => {
 
         const id_material = results[0].id_material;
 
-    const queryPrestamo = 'SELECT fechavencimiento, horavencimiento FROM prestamo WHERE id_material =?';
+    const queryPrestamo = 'SELECT horavencimiento FROM prestamo WHERE id_material =?';
     BD.query(queryPrestamo, [id_material], (err,results) =>{
         if(err){
             console.error("Error al obtener el id_material",err);
@@ -57,13 +57,12 @@ router.post('/RegistroDevolucion', (req,res) => {
             return res.status(404).json({message: "Material no encontrado"});
         }
 
-        const fechavencimiento = results[0].fechavencimiento;
         const horavencimiento = results[0].horavencimiento;
 
         //Metodo para hacer la insercion del prestamo a la tabla
-    const queryDevolucion = 'INSERT INTO devolucion(id_solicitante, id_material, estado, comentarios, fechavencimiento, horavencimiento, fechadevolucion, horadevolucion)'+
-    'VALUES (?,?,?,?,?,?,?,?)';
-    BD.query(queryDevolucion, [id_solicitante, id_material, estado, comentarios, fechavencimiento, horavencimiento, fechadevolucion, horadevolucion], (err, results)=>{
+    const queryDevolucion = 'INSERT INTO devolucion(id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion)'+
+    'VALUES (?,?,?,?,?,?,?)';
+    BD.query(queryDevolucion, [id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion], (err, results)=>{
         if(err){
             console.error("Error al registrar la devolucion: ",err);
             return res.status(500).json({message: "Error al registrar la devolucion", err: err});
@@ -193,7 +192,7 @@ router.put('/actualizarEstadoPrestamo', async(req,res) =>{
 
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerDevolucion', (req, res) => {
-    const query ='SELECT d.fechavencimiento, d.horavencimiento, '+ 
+    const query ='SELECT d.horavencimiento, '+ 
     'd.fechadevolucion, d.horadevolucion, d.estado, '+
     'm.nombre_material, s.matricula_claveempleado, c.categoria '+
     ' FROM devolucion AS d'+ 
@@ -220,7 +219,7 @@ router.get('/obtenerDevolucionPorMatricula_Claveempleado', (req, res) => {
     const matricula = req.query.matricula_claveempleado;
     console.log("SERVER R: ",matricula);
 
-    BD.query('SELECT id_solicitante, activo, adeudos, nombre FROM solicitante WHERE matricula_claveempleado =?', 
+    BD.query('SELECT id_solicitante, ciclo, adeudos, nombre FROM solicitante WHERE matricula_claveempleado =?', 
         [matricula], (err, results) => {
             if(err){
                 console.log(err);
@@ -233,7 +232,7 @@ router.get('/obtenerDevolucionPorMatricula_Claveempleado', (req, res) => {
 
         const  solicitante = results[0];
         
-        if(solicitante.activo !==1){
+        if(solicitante.ciclo !=='2024-2'){
             return res.status(400).send("El solicitante no esta activo");
         }
 
