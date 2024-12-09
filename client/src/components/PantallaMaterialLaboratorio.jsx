@@ -4,9 +4,12 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import MaterialService from '../services/MaterialService';
+import Swal from 'sweetalert2';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/MaterialRoute";
 
 function PantallaMaterialLaboratorio() {
     const [id_material, setIdMaterial] = useState(0);
@@ -35,10 +38,25 @@ function PantallaMaterialLaboratorio() {
         toast.current.show({ severity: 'error', summary: 'Error', detail: mensaje, life: 3000 });
     };
 
+const resetForm = () => {
+    setIdMaterial(0);
+    setClave("");
+    setIdUbicacion("");
+    setNombreMaterial("");
+    setNumSerie("");
+    setIdCategoria("");
+    setMarca("");
+    setModelo("");
+    setIdEstado("");
+    setDescripcion("");
+    setPermiso("");
+    setFechaRegistro("");
+};
     const fetchMateriales = async () => {
         try {
-            const response = await MaterialService.obtenerMateriales();
-            setMateriales(response);
+            const response = await fetch(`${API_URL}/obtenerMateriales`);
+            const data = await response.json();
+            setMateriales(data);
         } catch (error) {
             MensajeEr("Error al obtener los materiales.");
         }
@@ -47,8 +65,15 @@ function PantallaMaterialLaboratorio() {
     const agregarOModificar = async (event) => {
         event.preventDefault();
         try {
-            if (isEdit) {
-                await MaterialService.modificarMaterial(id_material, {
+            const method = isEdit ? 'PUT' : 'POST';
+            const url = isEdit ? `${API_URL}/materiales/${id_material}` : `${API_URL}/materiales`;
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                     id_material,
                     clave,
                     id_ubicacion,
@@ -61,24 +86,14 @@ function PantallaMaterialLaboratorio() {
                     descripcion,
                     permiso,
                     fechaRegistro,
-                });
-                MensajeEx("Material modificado con éxito!");
-            } else {
-                await MaterialService.registroMaterial({
-                    clave,
-                    id_ubicacion,
-                    nombre_material,
-                    numserie,
-                    id_categoria,
-                    marca,
-                    modelo,
-                    id_estado,
-                    descripcion,
-                    permiso,
-                    fechaRegistro,
-                });
-                MensajeEx("Material registrado con éxito!");
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error en la solicitud');
             }
+
+            MensajeEx(isEdit ? "Material modificado con éxito!" : "Material registrado con éxito!");
             setShowDialog(false);
             fetchMateriales();
         } catch (error) {
@@ -88,13 +103,32 @@ function PantallaMaterialLaboratorio() {
 
     const eliminarMaterial = async (id) => {
         try {
-            if (window.confirm("¿Estás seguro de eliminar este material?")) {
-                await MaterialService.eliminarMaterial(id);
-                MensajeEx("Material eliminado con éxito!");
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'No podrás revertir esta acción',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+            });
+    
+            if (result.isConfirmed) {
+                const response = await fetch(`${API_URL}/materiales/${id}`, {
+                    method: 'DELETE',
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud');
+                }
+    
+                MensajeEx('Material eliminado con éxito!');
                 fetchMateriales();
+                Swal.fire('Eliminado!', 'El material ha sido eliminado.', 'success');
             }
         } catch (error) {
-            MensajeEr("Error al eliminar el material.");
+            MensajeEr('Error al eliminar el material.');
         }
     };
 
@@ -121,9 +155,9 @@ function PantallaMaterialLaboratorio() {
 
     const actionBodyTemplate = (rowData) => {
         return (
-            <>
+            <div className="flex gap-2">
                 <button
-                    className="bg-yellow-500 text-white py-1 px-2 rounded mr-2"
+                    className="bg-yellow-500 text-white py-1 px-2 rounded"
                     onClick={() => abrirFormularioEdicion(rowData)}
                 >
                     Editar
@@ -134,18 +168,19 @@ function PantallaMaterialLaboratorio() {
                 >
                     Eliminar
                 </button>
-            </>
+            </div>
         );
     };
 
     return (
-        <div className="bg-white text-xl font-bold max-w-7xl mx-auto p-4">
+        <div className="bg-white text-lg max-w-full mx-auto p-4">
             <Toast ref={toast} />
             <div className="flex items-center justify-between mb-4">
-                <h1>Material</h1>
+                <h1 className="text-xl font-semibold">Material</h1>
                 <button
-                    className="bg-blue-500 text-white py-1 px-3 rounded"
+                    className="bg-blue-500 text-white py-2 px-4 rounded"
                     onClick={() => {
+                        resetForm();
                         setIsEdit(false);
                         setShowDialog(true);
                     }}
@@ -159,47 +194,72 @@ function PantallaMaterialLaboratorio() {
                 paginator
                 rows={10}
                 responsiveLayout="scroll"
+                className="text-sm"
                 emptyMessage="No se encontraron materiales."
             >
-                <Column field="fechaRegistro" header="Fecha de Registro" />
-                <Column field="clave" header="Clave" />
-                <Column field="id_ubicacion" header="Ubicación" />
-                <Column field="nombre_material" header="Nombre" />
-                <Column field="numserie" header="Número de Serie" />
-                <Column field="id_categoria" header="Categoría" />
-                <Column field="marca" header="Marca" />
-                <Column field="modelo" header="Modelo" />
-                <Column field="id_estado" header="Estado" />
-                <Column field="descripcion" header="Descripción" />
-                <Column field="permiso" header="Permiso" />
-                <Column header="Acciones" body={actionBodyTemplate} />
+                <Column field="fechaRegistro" header="Fecha" style={{ width: '10%' }} />
+                <Column field="clave" header="Clave" style={{ width: '10%' }} />
+                <Column field="id_ubicacion" header="Ubicación" style={{ width: '10%' }} />
+                <Column field="nombre_material" header="Nombre" style={{ width: '15%' }} />
+                <Column field="numserie" header="No. Serie" style={{ width: '10%' }} />
+                <Column field="id_categoria" header="Categoría" style={{ width: '10%' }} />
+                <Column field="marca" header="Marca" style={{ width: '10%' }} />
+                <Column field="modelo" header="Modelo" style={{ width: '10%' }} />
+                <Column field="id_estado" header="Estado" style={{ width: '10%' }} />
+                <Column field="descripcion" header="Descripción" style={{ width: '15%' }} />
+                <Column field="permiso" header="Permiso" style={{ width: '10%' }} />
+                <Column header="Acciones" body={actionBodyTemplate} style={{ width: '10%' }} />
             </DataTable>
 
             <Dialog header={isEdit ? "Editar Material" : "Registrar Material"} visible={showDialog} onHide={() => setShowDialog(false)}>
-                <form onSubmit={agregarOModificar}>
-                    <label>Clave:</label>
-                    <input type="text" value={clave} onChange={(e) => setClave(e.target.value)} required />
-                    <label>Ubicación:</label>
-                    <input type="text" value={id_ubicacion} onChange={(e) => setIdUbicacion(e.target.value)} required />
-                    <label>Nombre:</label>
-                    <input type="text" value={nombre_material} onChange={(e) => setNombreMaterial(e.target.value)} required />
-                    <label>Número de Serie:</label>
-                    <input type="text" value={numserie} onChange={(e) => setNumSerie(e.target.value)} required />
-                    <label>Categoría:</label>
-                    <input type="text" value={id_categoria} onChange={(e) => setIdCategoria(e.target.value)} required />
-                    <label>Marca:</label>
-                    <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} required />
-                    <label>Modelo:</label>
-                    <input type="text" value={modelo} onChange={(e) => setModelo(e.target.value)} required />
-                    <label>Descripción:</label>
-                    <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required />
-                    <label>Estado:</label>
-                    <input type="text" value={id_estado} onChange={(e) => setIdEstado(e.target.value)} required />
-                    <label>Permiso:</label>
-                    <input type="text" value={permiso} onChange={(e) => setPermiso(e.target.value)} required />
-                    <label>Fecha de Registro:</label>
-                    <input type="date" value={fechaRegistro} onChange={(e) => setFechaRegistro(e.target.value)} required />
-                    <button type="submit" className="bg-green-500 text-white py-1 px-3 rounded">
+                <form onSubmit={agregarOModificar} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label>Clave:</label>
+                            <input type="text" value={clave} onChange={(e) => setClave(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Ubicación:</label>
+                            <input type="text" value={id_ubicacion} onChange={(e) => setIdUbicacion(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Nombre:</label>
+                            <input type="text" value={nombre_material} onChange={(e) => setNombreMaterial(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Número de Serie:</label>
+                            <input type="text" value={numserie} onChange={(e) => setNumSerie(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Categoría:</label>
+                            <input type="text" value={id_categoria} onChange={(e) => setIdCategoria(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Marca:</label>
+                            <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Modelo:</label>
+                            <input type="text" value={modelo} onChange={(e) => setModelo(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Estado:</label>
+                            <input type="text" value={id_estado} onChange={(e) => setIdEstado(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div className="col-span-2">
+                            <label>Descripción:</label>
+                            <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Permiso:</label>
+                            <input type="text" value={permiso} onChange={(e) => setPermiso(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                        <div>
+                            <label>Fecha de Registro:</label>
+                            <input type="date" value={fechaRegistro} onChange={(e) => setFechaRegistro(e.target.value)} required className="w-full border rounded p-2" />
+                        </div>
+                    </div>
+                    <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded">
                         {isEdit ? "Guardar cambios" : "Guardar"}
                     </button>
                 </form>
