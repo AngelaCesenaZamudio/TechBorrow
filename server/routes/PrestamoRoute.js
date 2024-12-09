@@ -16,8 +16,10 @@ router.post('/RegistroPrestamo', (req,res) => {
     const nombre_material = req.body.nombre_material;
     const estado = req.body.estado;
     const comentarios = req.body.comentarios;
-    const fecha = req.body.fecha;
-    const hora = req.body.hora;
+    const fecharegistro = req.body.fecharegistro;
+    const horaregistro = req.body.horaregistro;
+    const fechavencimiento = req.body.fechavencimiento;
+    const horavencimiento = req.body.horavencimiento;
 
     const querySolicitante = 'SELECT id_solicitante FROM solicitante WHERE matricula_claveempleado =?';
     BD.query(querySolicitante, [matricula_claveempleado], (err,results) =>{
@@ -46,9 +48,40 @@ router.post('/RegistroPrestamo', (req,res) => {
 
         const id_material = results[0].id_material;
 
+        const queryIDPrestamo= 'SELECT id_prestamo FROM prestamo WHERE id_material =?';
+        BD.query(queryIDPrestamo, [id_material], (err,results) =>{
+            if(err){
+                console.error("Error al obtener el id_material",err);
+                return res.status(500).json({message: "Error al obtener el id_material", err: err});
+            }
+    
+            if(results.length===0){
+                return res.status(404).json({message: "Material no encontrado"});
+            }
+    
+            const id_prestamo = results[0].id_prestamo;    
+
+        const queryIDubicacion= 'SELECT id_ubicacion FROM material WHERE id_material =?';
+        BD.query(queryIDubicacion, [id_material], (err,results) =>{
+            if(err){
+                console.error("Error al obtener el id_ubicacion",err);
+                return res.status(500).json({message: "Error al obtener el id_prestamo", err: err});
+            }
+    
+            if(results.length===0){
+                return res.status(404).json({message: "Ubicacion no encontrada"});
+            }
+        
+                const id_ubicacion = results[0].id_ubicacion;
+            
+        const clave_prestamo = `PR-${id_material}-${id_solicitante}-${fecharegistro}-${id_prestamo}-${id_ubicacion}`;
+
+        console.log("clave en route: ", clave_prestamo);
+
         //Metodo para hacer la insercion del prestamo a la tabla
-        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecha, hora) VALUES (?,?,?,?,?,?)';
-        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecha, hora], (err, results)=>{
+        const queryPrestamo = 'INSERT INTO prestamo(id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, horavencimiento, clave_prestamo)'+
+        'VALUES (?,?,?,?,?,?,?,?)';
+        BD.query(queryPrestamo, [id_solicitante, id_material, estado, comentarios, fecharegistro, horaregistro, horavencimiento, clave_prestamo], (err, results)=>{
             if(err){
                 console.error("Error al registrar el prestamo: ",err);
                 return res.status(500).json({message: "Error al registrar el prestamo", err: err});
@@ -57,6 +90,8 @@ router.post('/RegistroPrestamo', (req,res) => {
             console.log("PRESTAMO REGISTRADO")
             
         })
+    })
+    })
     })
     })
 });
@@ -120,12 +155,12 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
 
 //Metodo para obtener todos los prestamos ya generados
 router.get('/obtenerPrestamos', (req, res) => {
-    const query ='SELECT p.fecha, p.hora, '+ 
-    'm.nombre_material, s.matricula_claveempleado, c.categoria '+
-    'FROM prestamo AS p'+ 
+    const query ='SELECT p.fecharegistro, p.horaregistro, '+ 
+    'p.estado, m.nombre_material, s.matricula_claveempleado, p.clave_prestamo, '+
+    'p.horavencimiento FROM prestamo AS p'+ 
     ' JOIN material AS m ON p.id_material = m.id_material'+
-    ' JOIN solicitante AS s ON p.id_solicitante = s.id_solicitante'+
-    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'; 
+    ' JOIN solicitante AS s ON p.id_solicitante = s.id_solicitante '+
+    'WHERE p.estado="Prestado"'; 
         
     BD.query(query, (err, results) => {
         if(err){
@@ -142,7 +177,7 @@ router.get('/validarMatricula_Claveempleado', (req, res) => {
     const matricula = req.query.matricula_claveempleado;
     console.log("SERVER R: ",matricula);
 
-    BD.query('SELECT id_solicitante, activo, adeudos, nombre FROM solicitante WHERE matricula_claveempleado =?', 
+    BD.query('SELECT id_solicitante, ciclo, adeudos, nombre FROM solicitante WHERE matricula_claveempleado =?', 
         [matricula], (err, results) => {
             if(err){
                 console.log(err);
@@ -155,7 +190,7 @@ router.get('/validarMatricula_Claveempleado', (req, res) => {
 
         const  solicitante = results[0];
         
-        if(solicitante.activo !==1){
+        if(solicitante.ciclo !=='2024-2'){
             return res.status(400).send("El solicitante no esta activo");
         }
 
