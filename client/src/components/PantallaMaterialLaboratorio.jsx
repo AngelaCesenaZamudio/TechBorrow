@@ -122,8 +122,6 @@ const resetForm = () => {
                 if (!response.ok) {
                     throw new Error('Error en la solicitud');
                 }
-    
-                MensajeEx('Material eliminado con éxito!');
                 fetchMateriales();
                 Swal.fire('Eliminado!', 'El material ha sido eliminado.', 'success');
             }
@@ -197,15 +195,19 @@ const resetForm = () => {
                 className="text-sm"
                 emptyMessage="No se encontraron materiales."
             >
-                <Column field="fechaRegistro" header="Fecha" style={{ width: '10%' }} />
+                <Column field="fechaRegistro" header="Fecha" body={(rowData) => {
+                const date = new Date(rowData.fechaRegistro);
+                return date.toISOString().split('T')[0]; // Formatea a YYYY-MM-DD
+                }}
+            />
                 <Column field="clave" header="Clave" style={{ width: '10%' }} />
                 <Column field="id_ubicacion" header="Ubicación" style={{ width: '10%' }} />
                 <Column field="nombre_material" header="Nombre" style={{ width: '15%' }} />
                 <Column field="numserie" header="No. Serie" style={{ width: '10%' }} />
-                <Column field="id_categoria" header="Categoría" style={{ width: '10%' }} />
+                <Column field="categoria" header="Categoría" style={{ width: '10%' }} />
                 <Column field="marca" header="Marca" style={{ width: '10%' }} />
                 <Column field="modelo" header="Modelo" style={{ width: '10%' }} />
-                <Column field="id_estado" header="Estado" style={{ width: '10%' }} />
+                <Column field="estado" header="Estado" style={{ width: '10%' }} />
                 <Column field="descripcion" header="Descripción" style={{ width: '15%' }} />
                 <Column field="permiso" header="Permiso" style={{ width: '10%' }} />
                 <Column header="Acciones" body={actionBodyTemplate} style={{ width: '10%' }} />
