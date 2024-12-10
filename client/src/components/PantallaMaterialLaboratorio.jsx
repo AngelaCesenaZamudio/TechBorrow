@@ -89,6 +89,16 @@ function PantallaMaterialLaboratorio() {
       fetchMateriales();
   }, []);
 
+  // Mapeos de valores
+const ubicaciones = { 1: 'Aula', 2: 'Laboratorio', 3: 'Cubículos', 4: 'Almacén' };
+
+// Plantillas para DataTable
+const ubicacionTemplate = (rowData) => ubicaciones[rowData.id_ubicacion] || 'Desconocido';
+
+
+
+ 
+
     return (
         <div className="bg-white text-xl font-bold max-w-7xl mx-auto p-4">
             <Toast ref={toast} />
@@ -100,17 +110,16 @@ function PantallaMaterialLaboratorio() {
             </div>
 
             {/* DataTable en lugar de la tabla HTML */}
-    <DataTable
+            <DataTable
     value={materiales}
     paginator
-    rows={10}
+    rows={5}
     responsiveLayout="scroll"
     emptyMessage="No se encontraron materiales."
 >
-    <Column field="fechaRegistro" header="Fecha de Registro" />
     <Column field="clave" header="Clave" />
-    <Column field="id_ubicacion" header="Ubicación" />
     <Column field="nombre_material" header="Nombre" />
+    <Column field={ubicacionTemplate} header="Ubicación" />
     <Column field="numserie" header="Número de Serie" />
     <Column field="id_categoria" header="Categoría" />
     <Column field="marca" header="Marca" />
@@ -118,46 +127,84 @@ function PantallaMaterialLaboratorio() {
     <Column field="descripcion" header="Descripción" />
     <Column field="id_estado" header="Estado" />
     <Column field="permiso" header="Permiso" />
+    <Column field="fechaRegistro" header="Fecha de Registro" />
 </DataTable>
+
 
             {/* Formulario para registrar un nuevo material */}
             <Dialog header="Registrar Material" visible={showDialog} onHide={() => setShowDialog(false)}>
-    <form onSubmit={agregar}>
-        <label>Clave:</label>
-        <input type="text" value={clave} onChange={(e) => setClave(e.target.value)} required />
-
-        <label>Ubicación:</label>
-        <input type="text" value={id_ubicacion} onChange={(e) => setIdUbicacion(e.target.value)} required />
-
-        <label>Nombre:</label>
-        <input type="text" value={nombre_material} onChange={(e) => setNombreMaterial(e.target.value)} required />
-
-        <label>Número de Serie:</label>
-        <input type="text" value={numserie} onChange={(e) => setNumSerie(e.target.value)} required />
-
-        <label>Categoría:</label>
-        <input type="text" value={id_categoria} onChange={(e) => setIdCategoria(e.target.value)} required />
-
-        <label>Marca:</label>
-        <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} required />
-
-        <label>Modelo:</label>
-        <input type="text" value={modelo} onChange={(e) => setModelo(e.target.value)} required />
-
-        <label>Descripción:</label>
-        <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required />
-
-        <label>Estado:</label>
-        <input type="text" value={id_estado} onChange={(e) => setIdEstado(e.target.value)} required />
-
-        <label>Permiso:</label>
-        <input type="text" value={permiso} onChange={(e) => setPermiso(e.target.value)} required />
-
-        <label>Fecha de Registro:</label>
-        <input type="date" value={fechaRegistro} onChange={(e) => setFechaRegistro(e.target.value)} required />
-
-        <button type="submit">Guardar</button>
-    </form>
+            <form onSubmit={agregar} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label>Clave:</label>
+                        <input type="text" value={clave} onChange={(e) => setClave(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div>
+                        <label>Ubicación:</label>
+                        <select value={id_ubicacion} onChange={(e) => setIdUbicacion(e.target.value)} className="w-full border rounded p-2" required>
+                            <option value="">Seleccione una opción</option>
+                            <option value="1">Aula</option>
+                            <option value="2">Laboratorio</option>
+                            <option value="3">Cubículos</option>
+                            <option value="4">Almacén</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Nombre:</label>
+                        <input type="text" value={nombre_material} onChange={(e) => setNombreMaterial(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div>
+                        <label>Número de Serie:</label>
+                        <input type="text" value={numserie} onChange={(e) => setNumSerie(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div>
+                        <label>Categoría:</label>
+                        <select value={id_categoria} onChange={(e) => setIdCategoria(e.target.value)} className="w-full border rounded p-2" required>
+                            <option value="">Seleccione una opción</option>
+                            <option value="1">Laptop</option>
+                            <option value="2">Mouse</option>
+                            <option value="3">Teclado</option>
+                            <option value="4">Pantalla</option>
+                            <option value="5">Adaptador</option>
+                            <option value="6">Libro</option>
+                            <option value="7">Herramienta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Marca:</label>
+                        <input type="text" value={marca} onChange={(e) => setMarca(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div>
+                        <label>Modelo:</label>
+                        <input type="text" value={modelo} onChange={(e) => setModelo(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div className="md:col-span-2">
+                        <label>Descripción:</label>
+                        <textarea value={descripcion} onChange={(e) => setDescripcion(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div>
+                        <label>Estado:</label>
+                        <select value={id_estado} onChange={(e) => setIdEstado(e.target.value)} className="w-full border rounded p-2" required >
+                            <option value="">Selecciones una opcion</option>
+                            <option value="1">Disponible</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Permiso:</label>
+                        <select value={permiso} onChange={(e) => setPermiso(e.target.value)} className="w-full border rounded p-2" required>
+                            <option value="">Seleccione una opción</option>
+                            <option value="Maestros">Maestros</option>
+                            <option value="Alumnos">Alumnos</option>
+                            <option value="Ambos">Ambos</option>
+                        </select>
+                    </div>
+                    <div className="md:col-span-2">
+                        <label>Fecha de Registro:</label>
+                        <input type="date" value={fechaRegistro} onChange={(e) => setFechaRegistro(e.target.value)} className="w-full border rounded p-2" required />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end">
+                        <button type="submit" className="bg-green-600 text-white py-2 px-4 rounded">Guardar</button>
+                    </div>
+                </form>
 </Dialog>
         </div>
     );
