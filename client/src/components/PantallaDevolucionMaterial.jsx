@@ -76,12 +76,14 @@ function PantallaDevolucionMaterial(){
         }else{
             MensajeEr("El material no tiene prestamos");
             sethoravencimiento("");
+            setisFieldDisabled(true);
         }
     }catch(error){
         if(error.response){
             //Material no registrado
             if(error.response.status===404){
             MensajeEr("Material no registrado");
+            setisFieldDisabled(true);
         }else{
             MensajeEr("Error al validar");
         }
@@ -327,7 +329,8 @@ function PantallaDevolucionMaterial(){
 
             {/*Botones del codigo con acciones, mandar a services y limpiar campos*/}
             <div className='flex justify-center mt-6 space-x-4'>  
-            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}>Guardar</button>
+            <button className="bg-lime-600 text-black font-bold py-2 px-3 rounded" onClick={(event) => agregar(event)}
+            disabled={isFieldDisabled}>Guardar</button>
             <button className="bg-rose-700 text-black font-bold py-2 px-4 rounded" onClick={limpiarCampos}>Borrar</button>
             </div>        
         </form>
