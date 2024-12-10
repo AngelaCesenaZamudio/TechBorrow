@@ -73,6 +73,7 @@ function PantallaDevolucionMaterial(){
             MensajeEx("El material tiene un préstamo activo");
             setnombre_material(value);
             sethoravencimiento(response.data.horavencimiento); 
+            setisFieldDisabled(false);
         }else{
             MensajeEr("El material no tiene prestamos");
             sethoravencimiento("");

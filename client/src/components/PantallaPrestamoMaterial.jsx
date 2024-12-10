@@ -374,14 +374,14 @@ function PantallaPrestamoMaterial(){
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.nombre_material}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.matricula_claveempleado}</td>
                 <td className='border border-gray-100 p-2 text-center text-sm font-semibold'>{prestamos.clave_prestamo}</td>
-                {/*<td className='border border-gray-100 p-2 text-center text-sm font-sans'>
+                <td className='border border-gray-100 p-2 text-center text-sm font-sans'>
                     <button className='focus:outline-none'>
                         <img src='./src/imagenes/modificar.png' alt='Modificar' className='h-5 w-5 inline<'/>
                     </button>
                     <button className='focus:outline-none ml-6'>
                         <img src='./src/imagenes/eliminar.png' alt='Modificar' className='h-5 w-5 inline<'/>
                     </button>
-                </td>*/}
+                </td>
                 </tr>
                 ))}
             </tbody>
