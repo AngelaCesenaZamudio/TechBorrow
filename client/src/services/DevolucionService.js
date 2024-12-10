@@ -4,13 +4,13 @@ const DevolucionService = {
     RegistroDevolucion: (datos) => { //Para realizar la devolucion del material
         return Axios.post("http://localhost:3001/DevolucionRoute/RegistroDevolucion", datos);
     },
-    obtenerDevolucion: () =>{ //para obteber todos los prestamos generados
+    obtenerDevolucion: () =>{ //para obteber todas las devoluciones generadas
         return Axios.get("http://localhost:3001/DevolucionRoute/obtenerDevolucion");
     },
-    obtenerDevolucionPorMatricula_Claveempleado: (matricula_claveempleado) =>{ //Obtener la informacion del prestamo para realizar la devolucion por medio de la matricula
-        return Axios.get('http://localhost:3001/DevolucionRoute/obtenerDevolucionPorMatricula_Claveempleado',{
+    validarMaterial: (nombre_material) =>{ //validar material ingresado
+        return Axios.get('http://localhost:3001/DevolucionRoute/validarMaterial',{
             params : {
-                matricula_claveempleado : matricula_claveempleado
+                nombre_material : nombre_material
             }
     });
     },
@@ -22,7 +22,7 @@ const DevolucionService = {
             throw error;
         }
     },
-    actualizarEstadoPrestamo:(nombre_material)=>{
+    actualizarEstadoPrestamo:(nombre_material)=>{ //Se manda la instruccion de cambiar el estado del prestamo de "Prestado" a "Finalizado".
         try{
             return Axios.put(`http://localhost:3001/DevolucionRoute/actualizarEstadoPrestamo`, {nombre_material});
         }catch(error){

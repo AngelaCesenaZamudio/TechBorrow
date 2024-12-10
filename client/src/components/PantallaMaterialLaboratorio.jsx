@@ -4,7 +4,7 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import MaterialService from '../services/MaterialService';
-import Swal from 'sweetalert2';
+//import Swal from 'sweetalert2';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Alertas.css';

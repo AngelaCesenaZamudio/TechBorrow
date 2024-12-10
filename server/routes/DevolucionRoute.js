@@ -9,32 +9,17 @@ const BD = mysql.createConnection({
     database:"techborrow"
 });
 
-//Registrar el prestamo por primera vez
+//Registrar el devolucion por primera vez
 router.post('/RegistroDevolucion', (req,res) => {
-    const id_devolucion = req.body.id_Prestamo;
-    const matricula_claveempleado = req.body.matricula_claveempleado;
     const nombre_material = req.body.nombre_material;
     const estado = req.body.estado;
     const comentarios = req.body.comentarios;
     const fechadevolucion = req.body.fechadevolucion;
     const horadevolucion = req.body.horadevolucion;
-    
-    const querySolicitante = 'SELECT id_solicitante FROM solicitante WHERE matricula_claveempleado =?';
-    BD.query(querySolicitante, [matricula_claveempleado], (err,results) =>{
-        if(err){
-            console.error("Error al obtener el id_solicitante",err);
-            return res.status(500).json({message: "Error al obtener el id_solicitante", err: err});
-        }
 
-        if(results.length===0){
-            return res.status(404).json({message: "Solicitante no encontrado"});
-        }
-
-        const id_solicitante = results[0].id_solicitante;
-
-    //Metodo que utilizamos para tomar el id del material    
-    const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
-    BD.query(queryMaterial, [nombre_material], (err,results) =>{
+     //Obtener los datos del prestamo por medio del id_material.   
+     const queryMaterial = 'SELECT id_material, id_ubicacion FROM material WHERE nombre_material =?'
+     BD.query(queryMaterial, [nombre_material], (err,results) =>{ 
         if(err){
             console.error("Error al obtener el id_material",err);
             return res.status(500).json({message: "Error al obtener el id_material", err: err});
@@ -45,35 +30,54 @@ router.post('/RegistroDevolucion', (req,res) => {
         }
 
         const id_material = results[0].id_material;
+        const id_ubicacion = results[0].id_ubicacion;
+        console.log("id_material en devolucion: ",id_material);
+        console.log("id_ubicacion en devolucion: ",id_ubicacion);
 
-    const queryPrestamo = 'SELECT horavencimiento FROM prestamo WHERE id_material =?';
-    BD.query(queryPrestamo, [id_material], (err,results) =>{
+      const queryPrestamo = 'SELECT id_solicitante, horavencimiento FROM prestamo WHERE id_material =?';
+      BD.query(queryPrestamo, [id_material], (err,results) =>{
         if(err){
             console.error("Error al obtener el id_material",err);
-            return res.status(500).json({message: "Error al obtener el id_material", err: err});
+            return res.status(500).json({message: "Error al obtener la hora de vencimiento", err: err});
         }
 
         if(results.length===0){
-            return res.status(404).json({message: "Material no encontrado"});
+            return res.status(404).json({message: "hora de vencimiento no encontrada"});
         }
 
+        const id_solicitante = results[0].id_solicitante;
         const horavencimiento = results[0].horavencimiento;
+        console.log("id_solicitante en devolucion: ",id_solicitante);
+        console.log("hora vencimiento en devolucion: ",horavencimiento);
 
         //Metodo para hacer la insercion del prestamo a la tabla
-    const queryDevolucion = 'INSERT INTO devolucion(id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion)'+
-    'VALUES (?,?,?,?,?,?,?)';
-    BD.query(queryDevolucion, [id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion], (err, results)=>{
+      const queryDevolucion = 'INSERT INTO devolucion (id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion)'+
+      'VALUES (?,?,?,?,?,?,?)';
+      BD.query(queryDevolucion, [id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion], (err, results)=> {
         if(err){
             console.error("Error al registrar la devolucion: ",err);
             return res.status(500).json({message: "Error al registrar la devolucion", err: err});
         }
-        res.status(200).json({message: "Devolución registrada con exito"});
-        console.log("DEVOLUCION REGISTRADA")
+
+        const id_devolucion = results.insertId;  
+        console.log("id_devolucion en registro: ",id_devolucion); 
+
+        const clave_devolucion = `DVL-${id_material}-${id_solicitante}-${fechadevolucion}-${id_devolucion}-${id_ubicacion}`;
+        console.log("clave en route: ", clave_devolucion);
+
+        const queryUpdateDevolucion= 'UPDATE devolucion SET clave_devolucion = ? WHERE id_devolucion =?';
+        BD.query(queryUpdateDevolucion, [clave_devolucion, id_devolucion], (err)=>{
+        if(err){
+            console.error("Error al actualizar la clave: ", err);
+            return res.status(500).json({message: "Error al actualizar clave de prestamo",err:err});
+        }  
         
-                })
-            })
-        })
-    })
+        console.log("Devolucion registrada con exito");
+        return res.status(200).json({message: "Devolucion registrada con exito"});
+        });
+    });
+    });
+    }); 
 });
 
 //Funcion que utilizaremos para actualizar estado del material en prestamo
@@ -82,8 +86,7 @@ router.put('/actualizarEstadoMaterial', async(req,res) =>{
         const {nombre_material} = req.body;
         const estado = "Disponible";
 
-        const queryMaterial = 'SELECT id_material FROM material '+ 
-        'WHERE nombre_material =?';
+        const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
 
         BD.query(queryMaterial, [nombre_material], (err,results) =>{
         if(err){
@@ -139,8 +142,7 @@ router.put('/actualizarEstadoPrestamo', async(req,res) =>{
         const {nombre_material} = req.body;
         const estado = "Finalizado";
 
-        const queryMaterial = 'SELECT id_material FROM material '+ 
-        'WHERE nombre_material =?';
+        const queryMaterial = 'SELECT id_material FROM material WHERE nombre_material =?';
 
         BD.query(queryMaterial, [nombre_material], (err,results) =>{
         if(err){
@@ -194,11 +196,10 @@ router.put('/actualizarEstadoPrestamo', async(req,res) =>{
 router.get('/obtenerDevolucion', (req, res) => {
     const query ='SELECT d.horavencimiento, '+ 
     'd.fechadevolucion, d.horadevolucion, d.estado, '+
-    'm.nombre_material, s.matricula_claveempleado, c.categoria '+
+    'm.nombre_material, s.matricula_claveempleado, d.clave_devolucion '+
     ' FROM devolucion AS d'+ 
     ' JOIN material AS m ON d.id_material = m.id_material'+
     ' JOIN solicitante AS s ON d.id_solicitante = s.id_solicitante'+
-    ' JOIN categoria AS c ON m.id_categoria = c.id_categoria'+
     ' WHERE d.estado ="Finalizado"'; 
 
     console.log("Entro a devolucion");
@@ -215,58 +216,41 @@ router.get('/obtenerDevolucion', (req, res) => {
 });
 
 //Metodo para validar la matricula
-router.get('/obtenerDevolucionPorMatricula_Claveempleado', (req, res) => {
-    const matricula = req.query.matricula_claveempleado;
-    console.log("SERVER R: ",matricula);
+router.get('/validarMaterial', (req, res) => {
+    const nombre_material = req.query.nombre_material;
+    console.log("SERVER R: ",nombre_material);
 
-    BD.query('SELECT id_solicitante, ciclo, adeudos, nombre FROM solicitante WHERE matricula_claveempleado =?', 
-        [matricula], (err, results) => {
+    BD.query('SELECT id_material FROM material WHERE nombre_material =?', 
+        [nombre_material], (err, results) => {
             if(err){
                 console.log(err);
-                return res.status(500).send('Error al verificar solicitante');
+                return res.status(500).send('Error al verificar material');
             }
 
             if(results.length===0){
-                return res.status(404).send('Solicitante no registrado');
+                return res.status(404).send('Material no registrado');
             }
 
-        const  solicitante = results[0];
-        
-        if(solicitante.ciclo !=='2024-2'){
-            return res.status(400).send("El solicitante no esta activo");
-        }
+        const  id_material = results[0].id_material;
+        console.log("obtuvo el id material: ",id_material);
 
-        if(solicitante.adeudos>0){
-            return res.status(400).send("El solicitante tiene adeudos pendientes.");
-        }
-
-        BD.query('SELECT * FROM prestamo WHERE id_solicitante = ? AND estado = "Prestado"',
-            [solicitante.id_solicitante], (err, prestamo) =>{
+        BD.query('SELECT * FROM prestamo WHERE id_material = ? AND estado = "Prestado"',
+            [id_material], (err, results) =>{
                 if(err){
                     console.log(err);
                     return res.status(500).send('Error al verificar prestamos');
                 }
 
-                if(prestamo.length>0){
-                    const id_material= prestamo[0].id_material;
-
-                    BD.query('SELECT nombre_material FROM material WHERE id_material = ?',
-                        [id_material], (err, material) =>{
-                            if(err){
-                                console.log(err);
-                                return res.status(500).send('Error al obtener material');
-                            }
-
-                            return res.status(200).send({
-                                mensaje:'Solicitante con prestamo activo',
-                                nombre: solicitante.nombre,
-                                nombre_material: material.length>0 ? material[0].nombre_material: 'Material no encontrado'
-                            });
-
-                        })
-                } else{
-                    return res.status(404).send("No cuenta con un prestamo activo");
-                }   
+                if(results.length>0){
+                console.log("Datos obtenidos"); 
+                const horavencimiento = results[0].horavencimiento  
+                console.log("hora obtenida: ", horavencimiento); 
+                return res.status(200).json({message: "Material con prestamo activo",
+                horavencimiento : horavencimiento,
+                });  
+                }else{
+                    return res.status(200).json({message: "El material no tiene préstamos activos"});
+                }
             });
     });
 });

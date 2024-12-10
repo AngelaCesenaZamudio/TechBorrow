@@ -7,6 +7,7 @@ import PantallaPrestamoMaterial from "./components/PantallaPrestamoMaterial";
 import Footer from "./components/footer";
 import MenuServicios from "./components/MenuServicios";
 import PantallaMaterialLaboratorio from "./components/PantallaMaterialLaboratorio";
+import PantallaDevolucionMaterial from "./components/PantallaDevolucionMaterial";
 
 function App() {
     return (
@@ -19,6 +20,7 @@ function App() {
                         <Route path="/Menu" element={<Menu />} />
                         <Route path="/MenuServicios" element={<MenuServicios />} />
                         <Route path="/PantallaPrestamoMaterial" element={<PantallaPrestamoMaterial />} />
+                        <Route path="/PantallaDevolucionMaterial" element={<PantallaDevolucionMaterial/>}/>
                         <Route path="/PantallaMaterialLaboratorio" element={<PantallaMaterialLaboratorio />} />
                     </Routes>
                 </main>
