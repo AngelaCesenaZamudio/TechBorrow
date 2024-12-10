@@ -186,7 +186,11 @@ function PantallaPrestamoMaterial(){
 
     const handleSubmit = (event) => {
         event.preventDefault();
+<<<<<<< Updated upstream
 
+=======
+        // eslint-disable-next-line no-undef
+>>>>>>> Stashed changes
         console.log(fecha_Prestamo)
     }
 
