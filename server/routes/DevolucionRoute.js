@@ -51,46 +51,33 @@ router.post('/RegistroDevolucion', (req,res) => {
         console.log("hora vencimiento en devolucion: ",horavencimiento);
 
         //Metodo para hacer la insercion del prestamo a la tabla
-      const queryDevolucion = 'INSERT INTO devolucion(id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion)'+
+      const queryDevolucion = 'INSERT INTO devolucion (id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion)'+
       'VALUES (?,?,?,?,?,?,?)';
-      BD.query(queryDevolucion, [id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion], (err, results)=>{
+      BD.query(queryDevolucion, [id_solicitante, id_material, estado, comentarios, horavencimiento, fechadevolucion, horadevolucion], (err, results)=> {
         if(err){
             console.error("Error al registrar la devolucion: ",err);
             return res.status(500).json({message: "Error al registrar la devolucion", err: err});
         }
-    
-        const queryIdDevolucion = 'SELECT id_devolucion FROM devolucion WHERE id_material =?';
-        BD.query(queryIdDevolucion, [id_material], (err, results) =>{
-            if(err){
-                console.error("Error al obtener el id de prestamo", err);
-                return res.status(500).json({message: "Error al obtener el id de prestamo", err: err});
-            }
 
-            if(results.length===0){
-                return res.status(404).json({message: "id de prestamo no encontrado"});
-            }
+        const id_devolucion = results.insertId;  
+        console.log("id_devolucion en registro: ",id_devolucion); 
 
-            const id_devolucion = results[0].id_devolucion;  
-            console.log("id_devolucion en registro: ",id_devolucion); 
+        const clave_devolucion = `DVL-${id_material}-${id_solicitante}-${fechadevolucion}-${id_devolucion}-${id_ubicacion}`;
+        console.log("clave en route: ", clave_devolucion);
 
-            const clave_devolucion = `DVL-${id_material}-${id_solicitante}-${fechadevolucion}-${id_devolucion}-${id_ubicacion}`;
-            console.log("clave en route: ", clave_devolucion);
-
-            const queryUpdateDevolucion= 'UPDATE devolucion SET clave_devolucion = ? WHERE id_devolucion =?';
-            BD.query(queryUpdateDevolucion, [clave_devolucion, id_devolucion]), (err)=>{
-            if(err){
-                console.error("Error al actualizar la clave: ", err);
-                return res.status(500).json({message: "Error al actualizar clave de prestamo",err:err});
-            }  
-            
-            console.log("Devolucion registrada con exito");
-            res.status(200).json({message: "Devolucion registrada con exito"});
-            
-            }
-        })
-     })
-    })
-    });  
+        const queryUpdateDevolucion= 'UPDATE devolucion SET clave_devolucion = ? WHERE id_devolucion =?';
+        BD.query(queryUpdateDevolucion, [clave_devolucion, id_devolucion], (err)=>{
+        if(err){
+            console.error("Error al actualizar la clave: ", err);
+            return res.status(500).json({message: "Error al actualizar clave de prestamo",err:err});
+        }  
+        
+        console.log("Devolucion registrada con exito");
+        return res.status(200).json({message: "Devolucion registrada con exito"});
+        });
+    });
+    });
+    }); 
 });
 
 //Funcion que utilizaremos para actualizar estado del material en prestamo
