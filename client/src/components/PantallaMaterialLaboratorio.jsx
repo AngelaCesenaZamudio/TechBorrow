@@ -4,7 +4,7 @@ import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import MaterialService from '../services/MaterialService';
-//import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import './Alertas.css';
@@ -133,16 +133,16 @@ const resetForm = () => {
     const abrirFormularioEdicion = (material) => {
         setIdMaterial(material.id_material);
         setClave(material.clave);
-        setIdUbicacion(material.id_ubicacion);
+        setIdUbicacion(material.ubicacion);
         setNombreMaterial(material.nombre_material);
         setNumSerie(material.numserie);
-        setIdCategoria(material.id_categoria);
+        setIdCategoria(material.categoria);
         setMarca(material.marca);
         setModelo(material.modelo);
-        setIdEstado(material.id_estado);
+        setIdEstado(material.estado);
         setDescripcion(material.descripcion);
         setPermiso(material.permiso);
-        setFechaRegistro(material.fechaRegistro);
+        setFechaRegistro(material.fechaRegistro.split('T')[0]);
         setIsEdit(true);
         setShowDialog(true);
     };
@@ -201,7 +201,7 @@ const resetForm = () => {
                 }}
             />
                 <Column field="clave" header="Clave" style={{ width: '10%' }} />
-                <Column field="id_ubicacion" header="Ubicación" style={{ width: '10%' }} />
+                <Column field="ubicacion" header="Ubicación" style={{ width: '10%' }} />
                 <Column field="nombre_material" header="Nombre" style={{ width: '15%' }} />
                 <Column field="numserie" header="No. Serie" style={{ width: '10%' }} />
                 <Column field="categoria" header="Categoría" style={{ width: '10%' }} />
@@ -257,9 +257,15 @@ const resetForm = () => {
                             <input type="text" value={permiso} onChange={(e) => setPermiso(e.target.value)} required className="w-full border rounded p-2" />
                         </div>
                         <div>
-                            <label>Fecha de Registro:</label>
-                            <input type="date" value={fechaRegistro} onChange={(e) => setFechaRegistro(e.target.value)} required className="w-full border rounded p-2" />
-                        </div>
+    <label>Fecha de Registro:</label>
+    <input 
+        type="date" 
+        value={fechaRegistro ? fechaRegistro.split('T')[0] : ""} //envía en formato YYYY-MM-DD
+        onChange={(e) => setFechaRegistro(e.target.value)} 
+        required 
+        className="w-full border rounded p-2" 
+    />
+</div>
                     </div>
                     <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded">
                         {isEdit ? "Guardar cambios" : "Guardar"}

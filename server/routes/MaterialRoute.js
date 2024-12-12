@@ -17,14 +17,24 @@ router.get("/obtenerMateriales", async (_req, res) => {
     try {
         const [results] = await pool.query(`
             SELECT 
-                m.id_material, m.clave, m.id_ubicacion, m.nombre_material, m.numserie,
-                c.categoria AS categoria, m.marca, m.modelo, e.estado AS estado,
-                m.descripcion, m.permiso, m.fechaRegistro
+                m.id_material, 
+                m.clave, 
+                u.ubicacion AS ubicacion, -- Alias descriptivo de la ubicación
+                m.nombre_material, 
+                m.numserie,
+                c.categoria AS categoria, 
+                m.marca, 
+                m.modelo, 
+                e.estado AS estado,
+                m.descripcion, 
+                m.permiso, 
+                m.fechaRegistro
             FROM material AS m
+            LEFT JOIN ubicacion AS u ON m.id_ubicacion = u.id_ubicacion -- JOIN con la tabla ubicacion
             LEFT JOIN categoria AS c ON m.id_categoria = c.id_categoria
             LEFT JOIN estado AS e ON m.id_estado = e.id_estado;
         `);
-        res.status(200).json(results);
+        res.status(200).json(results); // Devuelve los resultados al frontend
     } catch (error) {
         console.error("Error al obtener materiales:", error);
         res.status(500).json({ error: "Error al obtener materiales" });
